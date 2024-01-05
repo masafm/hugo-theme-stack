@@ -8,6 +8,12 @@ license:
 hidden: false
 comments: true
 draft: false
+categories:
+    - Linux
+tags:
+    - nmcli
+	- bridge
+	- bond
 ---
 nmtuiではできないっぽいのでnmcliでやる
 
