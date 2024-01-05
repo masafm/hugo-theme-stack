@@ -12,8 +12,8 @@ categories:
     - Linux
 tags:
     - nmcli
-	- bridge
-	- bond
+    - bridge
+    - bond
 ---
 nmtuiではできないっぽいのでnmcliでやる
 
