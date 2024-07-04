@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Kernel on mkashi.com</title><link>https://mkashi.com/tags/kernel/</link><description>Recent content in Kernel on mkashi.com</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Sun, 28 Mar 2021 10:18:25 +0900</lastBuildDate><atom:link href="https://mkashi.com/tags/kernel/index.xml" rel="self" type="application/rss+xml"/><item><title>Lenovo m75s gen2でkernelにACS overrideパッチを当ててIOMMUグループを分割する</title><link>https://mkashi.com/p/lenovo-m75s-gen2%E3%81%A7kernel%E3%81%ABacs-override%E3%83%91%E3%83%83%E3%83%81%E3%82%92%E5%BD%93%E3%81%A6%E3%81%A6iommu%E3%82%B0%E3%83%AB%E3%83%BC%E3%83%97%E3%82%92%E5%88%86%E5%89%B2%E3%81%99%E3%82%8B/</link><pubDate>Sun, 28 Mar 2021 10:18:25 +0900</pubDate><guid>https://mkashi.com/p/lenovo-m75s-gen2%E3%81%A7kernel%E3%81%ABacs-override%E3%83%91%E3%83%83%E3%83%81%E3%82%92%E5%BD%93%E3%81%A6%E3%81%A6iommu%E3%82%B0%E3%83%AB%E3%83%BC%E3%83%97%E3%82%92%E5%88%86%E5%89%B2%E3%81%99%E3%82%8B/</guid><description>&lt;p>使用しているkernelはNutanix CEのAHVに付属の4.19.84-2.el7.nutanix.20190916.276.x86_64。基本的にRHEL7のものと同じと思われる。&lt;/p>
+&lt;p>ACS overrideを有効にすることで内蔵のSATAコントローラのIOMMUグループが12に変わり他のPCIデバイスが同じグループ内にない状態になったので、CVMにSATAコントローラ単体でパススルーすることができるようになった。ACS overrideがないとホスト側に必要なPCIデバイスまでパススルーされてしまいホストごとパニックしてしまう。&lt;/p>
+&lt;p>ACS overrideパッチ適用前&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">IOMMU Group 0 00:01.0 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe Dummy Host Bridge [1022:1632]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 02:00.0 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ef]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 02:00.1 SATA controller [0106]: Advanced Micro Devices, Inc. [AMD] Device [1022:43eb]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 02:00.2 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43e9]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 03:00.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 03:01.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 03:02.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 03:03.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 03:04.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 03:08.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 03:09.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 07:00.0 USB controller [0c03]: Renesas Technology Corp. uPD720202 USB 3.0 Host Controller [1912:0015] (rev 02)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 09:00.0 Ethernet controller [0200]: Realtek Semiconductor Co., Ltd. RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller [10ec:8168] (rev 0e)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 11 0b:00.0 Non-Volatile memory controller [0108]: Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983 [144d:a808]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 1 00:01.1 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe GPP Bridge [1022:1633]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 2 00:02.0 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe Dummy Host Bridge [1022:1632]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 3 00:02.1 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe GPP Bridge [1022:1634]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 4 00:02.2 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe GPP Bridge [1022:1634]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 00:08.0 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe Dummy Host Bridge [1022:1632]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 00:08.1 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Renoir Internal PCIe GPP Bridge to Bus [1022:1635]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 0c:00.0 VGA compatible controller [0300]: Advanced Micro Devices, Inc. [AMD/ATI] Renoir [1002:1636] (rev d8)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 0c:00.1 Audio device [0403]: Advanced Micro Devices, Inc. [AMD/ATI] Device [1002:1637]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 0c:00.2 Encryption controller [1080]: Advanced Micro Devices, Inc. [AMD] Family 17h (Models 10h-1fh) Platform Security Processor [1022:15df]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 0c:00.3 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD] Renoir USB 3.1 [1022:1639]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 0c:00.4 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD] Renoir USB 3.1 [1022:1639]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 0c:00.5 Multimedia controller [0480]: Advanced Micro Devices, Inc. [AMD] Raven/Raven2/FireFlight/Renoir Audio Processor [1022:15e2] (rev 01)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 0c:00.6 Audio device [0403]: Advanced Micro Devices, Inc. [AMD] Family 17h (Models 10h-1fh) HD Audio Controller [1022:15e3]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 6 00:14.0 SMBus [0c05]: Advanced Micro Devices, Inc. [AMD] FCH SMBus Controller [1022:790b] (rev 51)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 6 00:14.3 ISA bridge [0601]: Advanced Micro Devices, Inc. [AMD] FCH LPC Bridge [1022:790e] (rev 51)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:18.0 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 0 [1022:1448]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:18.1 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 1 [1022:1449]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:18.2 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 2 [1022:144a]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:18.3 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 3 [1022:144b]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:18.4 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 4 [1022:144c]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:18.5 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 5 [1022:144d]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:18.6 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 6 [1022:144e]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:18.7 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 7 [1022:144f]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 8 01:00.0 Ethernet controller [0200]: Intel Corporation 82599ES 10-Gigabit SFI/SFP+ Network Connection [8086:10fb] (rev 01)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 9 01:00.1 Ethernet controller [0200]: Intel Corporation 82599ES 10-Gigabit SFI/SFP+ Network Connection [8086:10fb] (rev 01)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>ACS overrideパッチ適用後
+&lt;code>pcie_acs_override=downstream,multifunction&lt;/code>を設定して再起動&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">IOMMU Group 0 00:01.0 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe Dummy Host Bridge [1022:1632]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 01:00.1 Ethernet controller [0200]: Intel Corporation 82599ES 10-Gigabit SFI/SFP+ Network Connection [8086:10fb] (rev 01)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 11 02:00.0 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ef]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 12 02:00.1 SATA controller [0106]: Advanced Micro Devices, Inc. [AMD] Device [1022:43eb]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 13 02:00.2 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43e9]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 14 03:00.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 15 03:01.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 16 03:02.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 17 03:03.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 18 03:04.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 19 03:08.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 1 00:01.1 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe GPP Bridge [1022:1633]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 20 03:09.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 21 07:00.0 USB controller [0c03]: Renesas Technology Corp. uPD720202 USB 3.0 Host Controller [1912:0015] (rev 02)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 22 09:00.0 Ethernet controller [0200]: Realtek Semiconductor Co., Ltd. RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller [10ec:8168] (rev 0e)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 23 0b:00.0 Non-Volatile memory controller [0108]: Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983 [144d:a808]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 24 0c:00.0 VGA compatible controller [0300]: Advanced Micro Devices, Inc. [AMD/ATI] Renoir [1002:1636] (rev d8)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 25 0c:00.1 Audio device [0403]: Advanced Micro Devices, Inc. [AMD/ATI] Device [1002:1637]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 26 0c:00.2 Encryption controller [1080]: Advanced Micro Devices, Inc. [AMD] Family 17h (Models 10h-1fh) Platform Security Processor [1022:15df]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 27 0c:00.3 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD] Renoir USB 3.1 [1022:1639]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 28 0c:00.4 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD] Renoir USB 3.1 [1022:1639]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 29 0c:00.5 Multimedia controller [0480]: Advanced Micro Devices, Inc. [AMD] Raven/Raven2/FireFlight/Renoir Audio Processor [1022:15e2] (rev 01)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 2 00:02.0 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe Dummy Host Bridge [1022:1632]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 30 0c:00.6 Audio device [0403]: Advanced Micro Devices, Inc. [AMD] Family 17h (Models 10h-1fh) HD Audio Controller [1022:15e3]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 3 00:02.1 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe GPP Bridge [1022:1634]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 4 00:02.2 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe GPP Bridge [1022:1634]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 00:08.0 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe Dummy Host Bridge [1022:1632]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 6 00:08.1 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Renoir Internal PCIe GPP Bridge to Bus [1022:1635]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:14.0 SMBus [0c05]: Advanced Micro Devices, Inc. [AMD] FCH SMBus Controller [1022:790b] (rev 51)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:14.3 ISA bridge [0601]: Advanced Micro Devices, Inc. [AMD] FCH LPC Bridge [1022:790e] (rev 51)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 8 00:18.0 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 0 [1022:1448]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 8 00:18.1 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 1 [1022:1449]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 8 00:18.2 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 2 [1022:144a]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 8 00:18.3 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 3 [1022:144b]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 8 00:18.4 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 4 [1022:144c]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 8 00:18.5 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 5 [1022:144d]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 8 00:18.6 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 6 [1022:144e]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 8 00:18.7 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 7 [1022:144f]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 9 01:00.0 Ethernet controller [0200]: Intel Corporation 82599ES 10-Gigabit SFI/SFP+ Network Connection [8086:10fb] (rev 01)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>参考: &lt;a class="link" href="https://wiki.archlinux.jp/index.php/OVMF_%e3%81%ab%e3%82%88%e3%82%8b_PCI_%e3%83%91%e3%82%b9%e3%82%b9%e3%83%ab%e3%83%bc#IOMMU_.E3.82.B0.E3.83.AB.E3.83.BC.E3.83.97.E3.81.AE.E3.83.90.E3.82.A4.E3.83.91.E3.82.B9_.28ACS_.E4.B8.8A.E6.9B.B8.E3.81.8D.E3.83.91.E3.83.83.E3.83.81.29" target="_blank" rel="noopener"
+>archlinux wiki&lt;/a>&lt;/p></description></item><item><title>Kernel panic from 4.19.84-300.el7.x86_64</title><link>https://mkashi.com/p/kernel-panic-from-4.19.84-300.el7.x86_64/</link><pubDate>Wed, 17 Feb 2021 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/kernel-panic-from-4.19.84-300.el7.x86_64/</guid><description>&lt;p>AHV用にACS overrideパッチを当てたkernelビルドしたらpanicした。
+ソースを見たがよくわからないので放置。
+パッチは無関係で暗号化のセルフテスト周りでpanicしているようである。
+FIPSをオフにすればこのセルフテストは動かなくなる。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt"> 10
+&lt;/span>&lt;span class="lnt"> 11
+&lt;/span>&lt;span class="lnt"> 12
+&lt;/span>&lt;span class="lnt"> 13
+&lt;/span>&lt;span class="lnt"> 14
+&lt;/span>&lt;span class="lnt"> 15
+&lt;/span>&lt;span class="lnt"> 16
+&lt;/span>&lt;span class="lnt"> 17
+&lt;/span>&lt;span class="lnt"> 18
+&lt;/span>&lt;span class="lnt"> 19
+&lt;/span>&lt;span class="lnt"> 20
+&lt;/span>&lt;span class="lnt"> 21
+&lt;/span>&lt;span class="lnt"> 22
+&lt;/span>&lt;span class="lnt"> 23
+&lt;/span>&lt;span class="lnt"> 24
+&lt;/span>&lt;span class="lnt"> 25
+&lt;/span>&lt;span class="lnt"> 26
+&lt;/span>&lt;span class="lnt"> 27
+&lt;/span>&lt;span class="lnt"> 28
+&lt;/span>&lt;span class="lnt"> 29
+&lt;/span>&lt;span class="lnt"> 30
+&lt;/span>&lt;span class="lnt"> 31
+&lt;/span>&lt;span class="lnt"> 32
+&lt;/span>&lt;span class="lnt"> 33
+&lt;/span>&lt;span class="lnt"> 34
+&lt;/span>&lt;span class="lnt"> 35
+&lt;/span>&lt;span class="lnt"> 36
+&lt;/span>&lt;span class="lnt"> 37
+&lt;/span>&lt;span class="lnt"> 38
+&lt;/span>&lt;span class="lnt"> 39
+&lt;/span>&lt;span class="lnt"> 40
+&lt;/span>&lt;span class="lnt"> 41
+&lt;/span>&lt;span class="lnt"> 42
+&lt;/span>&lt;span class="lnt"> 43
+&lt;/span>&lt;span class="lnt"> 44
+&lt;/span>&lt;span class="lnt"> 45
+&lt;/span>&lt;span class="lnt"> 46
+&lt;/span>&lt;span class="lnt"> 47
+&lt;/span>&lt;span class="lnt"> 48
+&lt;/span>&lt;span class="lnt"> 49
+&lt;/span>&lt;span class="lnt"> 50
+&lt;/span>&lt;span class="lnt"> 51
+&lt;/span>&lt;span class="lnt"> 52
+&lt;/span>&lt;span class="lnt"> 53
+&lt;/span>&lt;span class="lnt"> 54
+&lt;/span>&lt;span class="lnt"> 55
+&lt;/span>&lt;span class="lnt"> 56
+&lt;/span>&lt;span class="lnt"> 57
+&lt;/span>&lt;span class="lnt"> 58
+&lt;/span>&lt;span class="lnt"> 59
+&lt;/span>&lt;span class="lnt"> 60
+&lt;/span>&lt;span class="lnt"> 61
+&lt;/span>&lt;span class="lnt"> 62
+&lt;/span>&lt;span class="lnt"> 63
+&lt;/span>&lt;span class="lnt"> 64
+&lt;/span>&lt;span class="lnt"> 65
+&lt;/span>&lt;span class="lnt"> 66
+&lt;/span>&lt;span class="lnt"> 67
+&lt;/span>&lt;span class="lnt"> 68
+&lt;/span>&lt;span class="lnt"> 69
+&lt;/span>&lt;span class="lnt"> 70
+&lt;/span>&lt;span class="lnt"> 71
+&lt;/span>&lt;span class="lnt"> 72
+&lt;/span>&lt;span class="lnt"> 73
+&lt;/span>&lt;span class="lnt"> 74
+&lt;/span>&lt;span class="lnt"> 75
+&lt;/span>&lt;span class="lnt"> 76
+&lt;/span>&lt;span class="lnt"> 77
+&lt;/span>&lt;span class="lnt"> 78
+&lt;/span>&lt;span class="lnt"> 79
+&lt;/span>&lt;span class="lnt"> 80
+&lt;/span>&lt;span class="lnt"> 81
+&lt;/span>&lt;span class="lnt"> 82
+&lt;/span>&lt;span class="lnt"> 83
+&lt;/span>&lt;span class="lnt"> 84
+&lt;/span>&lt;span class="lnt"> 85
+&lt;/span>&lt;span class="lnt"> 86
+&lt;/span>&lt;span class="lnt"> 87
+&lt;/span>&lt;span class="lnt"> 88
+&lt;/span>&lt;span class="lnt"> 89
+&lt;/span>&lt;span class="lnt"> 90
+&lt;/span>&lt;span class="lnt"> 91
+&lt;/span>&lt;span class="lnt"> 92
+&lt;/span>&lt;span class="lnt"> 93
+&lt;/span>&lt;span class="lnt"> 94
+&lt;/span>&lt;span class="lnt"> 95
+&lt;/span>&lt;span class="lnt"> 96
+&lt;/span>&lt;span class="lnt"> 97
+&lt;/span>&lt;span class="lnt"> 98
+&lt;/span>&lt;span class="lnt"> 99
+&lt;/span>&lt;span class="lnt">100
+&lt;/span>&lt;span class="lnt">101
+&lt;/span>&lt;span class="lnt">102
+&lt;/span>&lt;span class="lnt">103
+&lt;/span>&lt;span class="lnt">104
+&lt;/span>&lt;span class="lnt">105
+&lt;/span>&lt;span class="lnt">106
+&lt;/span>&lt;span class="lnt">107
+&lt;/span>&lt;span class="lnt">108
+&lt;/span>&lt;span class="lnt">109
+&lt;/span>&lt;span class="lnt">110
+&lt;/span>&lt;span class="lnt">111
+&lt;/span>&lt;span class="lnt">112
+&lt;/span>&lt;span class="lnt">113
+&lt;/span>&lt;span class="lnt">114
+&lt;/span>&lt;span class="lnt">115
+&lt;/span>&lt;span class="lnt">116
+&lt;/span>&lt;span class="lnt">117
+&lt;/span>&lt;span class="lnt">118
+&lt;/span>&lt;span class="lnt">119
+&lt;/span>&lt;span class="lnt">120
+&lt;/span>&lt;span class="lnt">121
+&lt;/span>&lt;span class="lnt">122
+&lt;/span>&lt;span class="lnt">123
+&lt;/span>&lt;span class="lnt">124
+&lt;/span>&lt;span class="lnt">125
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-text" data-lang="text">&lt;span class="line">&lt;span class="cl">[ 1.346310] alg: self-tests for sha1-ssse3 (sha1) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.346392] alg: self-tests for sha1-ni (sha1) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.349783] alg: self-tests for sha256-ssse3 (sha256) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.349884] alg: self-tests for sha224-ssse3 (sha224) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.350011] alg: self-tests for sha256-ni (sha256) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.350058] alg: self-tests for sha224-ni (sha224) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.357928] alg: self-tests for sha512-generic (sha512) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.357997] alg: self-tests for sha384-generic (sha384) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.360691] alg: self-tests for sha512-ssse3 (sha512) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.360762] alg: self-tests for sha384-ssse3 (sha384) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.374665] CPU feature &amp;#39;AVX registers&amp;#39; is not supported.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.410444] alg: self-tests for sha1 (sha1) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.410566] alg: self-tests for ecb(des3_ede) (ecb(des3_ede)) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.410687] alg: self-tests for cbc(des3_ede) (cbc(des3_ede)) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.410838] alg: self-tests for ctr(des3_ede) (ctr(des3_ede)) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.410861] alg: self-tests for sha256 (sha256) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.410897] alg: self-tests for ecb(aes) (ecb(aes)) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.410935] alg: self-tests for cbc(aes) (cbc(aes)) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.410973] alg: self-tests for xts(aes) (xts(aes)) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.411013] alg: self-tests for ctr(aes) (ctr(aes)) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.413166] alg: self-tests for rfc3686(ctr-aes-aesni) (rfc3686(ctr(aes))) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.413230] alg: self-tests for rfc3686(ctr(aes)) (rfc3686(ctr(aes))) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.415995] alg: skcipher: Failed to load transform for cfb(aes): -2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.415999] Kernel panic - not syncing: cfb(aes): cfb(aes) alg self test failed in fips mode!
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.416347] CPU: 1 PID: 407 Comm: modprobe Not tainted 4.19.84-300.el7.x86_64 #1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.416577] Hardware name: Nutanix AHV, BIOS 1.11.0-2.el7 04/01/2014
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.416776] Call Trace:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.416934] dump_stack+0x64/0x83
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.417087] panic+0xe8/0x25c
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.417250] alg_test.part.14+0x360/0x380
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.417414] do_test+0x4e74/0x5eed [tcrypt]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.417595] do_test+0x5edd/0x5eed [tcrypt]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.417782] ? 0xffffffffc026a000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.417949] tcrypt_mod_init+0x50/0x1000 [tcrypt]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.418079] ? 0xffffffffc026a000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.418216] do_one_initcall+0x4e/0x1d4
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.418379] ? free_unref_page_commit+0x85/0xf0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.418560] ? _cond_resched+0x15/0x30
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.418878] ? kmem_cache_alloc_trace+0x17f/0x1e0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.419224] do_init_module+0x5a/0x210
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.419464] load_module.isra.71+0x20cb/0x27e0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.419704] ? m_show+0x1c0/0x1c0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.419964] ? vmap_page_range_noflush+0x282/0x420
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.420286] __do_sys_init_module+0x11c/0x180
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.420575] do_syscall_64+0x5b/0x1a0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.420834] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.421277] RIP: 0033:0x7faeb2b42fca
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.421516] Code: 48 8b 0d a9 7e 2c 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 af 00 00 00 0f 05 &amp;lt;48&amp;gt; 3d 01 f0 ff ff 73 01 c3 48 8b 0d 76 7e 2c 00 f7 d8 64 89 01 48
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.422164] RSP: 002b:00007fff584491d8 EFLAGS: 00000206 ORIG_RAX: 00000000000000af
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.422555] RAX: ffffffffffffffda RBX: 0000000000a903d0 RCX: 00007faeb2b42fca
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.422828] RDX: 000000000041a96e RSI: 000000000001f05b RDI: 0000000000a9f350
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.423099] RBP: 000000000041a96e R08: 0000000000000000 R09: 0000000000a93ee0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.423449] R10: 0000000000a93e00 R11: 0000000000000206 R12: 0000000000a9f350
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.423722] R13: 0000000000a905a0 R14: 0000000000040000 R15: 0000000000000000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.424063] Kernel Offset: 0x2d000000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.424682] ---[ end Kernel panic - not syncing: cfb(aes): cfb(aes) alg self test failed in fips mode! ]---
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.425439] ------------[ cut here ]------------
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.425751] sched: Unexpected reschedule of offline CPU#0!
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.426092] WARNING: CPU: 1 PID: 407 at arch/x86/kernel/smp.c:128 native_smp_send_reschedule+0x39/0x40
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.426728] Modules linked in: tcrypt(+) authenc cmac wp512 twofish_generic twofish_x86_64_3way twofish_x86_64 twofish_common tea sha512_ssse3 sha512_generic sha256_ssse3 sha1_ssse3 serpent_sse2_x86_64 serpent_generic seed salsa20_generic rmd320 rmd256 rmd160 rmd128 michael_mic md4 khazad fcrypt dm_crypt des3_ede_x86_64 des_generic crc32c_intel ccm cast6_generic cast_common camellia_generic camellia_x86_64 blowfish_generic blowfish_x86_64 blowfish_common arc4 ansi_cprng vfio_pci irqbypass vfio_virqfd vfio_iommu_type1 vfio ipmi_devintf ipmi_msghandler
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.428579] CPU: 1 PID: 407 Comm: modprobe Not tainted 4.19.84-300.el7.x86_64 #1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.429074] Hardware name: Nutanix AHV, BIOS 1.11.0-2.el7 04/01/2014
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.429404] RIP: 0010:native_smp_send_reschedule+0x39/0x40
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.429661] Code: 0f 92 c0 84 c0 74 15 48 8b 05 03 55 14 01 be fd 00 00 00 48 8b 40 30 e9 d5 d7 ba 00 89 fe 48 c7 c7 98 bc 0b af e8 c7 fb 05 00 &amp;lt;0f&amp;gt; 0b c3 0f 1f 40 00 0f 1f 44 00 00 53 48 83 ec 20 65 48 8b 04 25
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.430412] RSP: 0018:ffff9a6438043cf8 EFLAGS: 00010082
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.430723] RAX: 0000000000000000 RBX: ffff9a642f583b80 RCX: 0000000000000006
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.431079] RDX: 0000000000000000 RSI: 0000000000000086 RDI: ffff9a64380568f0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.431464] RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000390
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.431808] R10: 0000000000000000 R11: 0000000000000000 R12: ffff9a642f58435c
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.432167] R13: 0000000000000000 R14: 0000000000000046 R15: 0000000000020400
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.432505] FS: 00007faeb367e740(0000) GS:ffff9a6438040000(0000) knlGS:0000000000000000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.433027] CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.433367] CR2: 00007f73d061c288 CR3: 00000001304d6000 CR4: 00000000003006e0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.433718] Call Trace:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.434014] &amp;lt;IRQ&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.434310] try_to_wake_up+0x3f0/0x450
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.434623] __wake_up_common+0x8f/0x160
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.434939] ep_poll_callback+0x1af/0x300
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.435263] __wake_up_common+0x8f/0x160
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.435563] __wake_up_common_lock+0x7a/0xc0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.435895] irq_work_run_list+0x4c/0x70
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.436228] ? tick_sched_do_timer+0x80/0x80
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.436548] update_process_times+0x3b/0x50
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.436854] tick_sched_handle+0x25/0x60
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.437176] tick_sched_timer+0x37/0x70
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.437485] __hrtimer_run_queues+0xfb/0x270
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.437800] hrtimer_interrupt+0x122/0x270
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.438104] smp_apic_timer_interrupt+0x6a/0x140
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.438446] apic_timer_interrupt+0xf/0x20
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.438764] &amp;lt;/IRQ&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.439049] RIP: 0010:panic+0x209/0x25c
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.439381] Code: 83 3d 36 d6 8e 01 00 74 05 e8 3f 60 02 00 48 c7 c6 20 32 9a af 48 c7 c7 d0 6e 0c af 31 c0 e8 8e 5e 06 00 fb 66 0f 1f 44 00 00 &amp;lt;45&amp;gt; 31 e4 e8 0b c0 0c 00 4d 39 ec 7c 1e 41 83 f6 01 48 8b 05 db d5
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.440264] RSP: 0018:ffffadfd0144baf8 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff13
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.440783] RAX: 0000000000000060 RBX: 0000000000000000 RCX: 0000000000000006
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.441211] RDX: 0000000000000000 RSI: 0000000000000092 RDI: ffff9a64380568f0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.441639] RBP: ffffadfd0144bb68 R08: 0000000000000000 R09: 000000000000038e
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.442034] R10: 0000000000000000 R11: 0000000000000000 R12: ffffffffaf105b38
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.442449] R13: 0000000000000000 R14: 0000000000000000 R15: ffffadfd0144be88
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.442829] ? panic+0x202/0x25c
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.443135] alg_test.part.14+0x360/0x380
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.443494] do_test+0x4e74/0x5eed [tcrypt]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.443838] do_test+0x5edd/0x5eed [tcrypt]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.444160] ? 0xffffffffc026a000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.444484] tcrypt_mod_init+0x50/0x1000 [tcrypt]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.444811] ? 0xffffffffc026a000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.445121] do_one_initcall+0x4e/0x1d4
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.445466] ? free_unref_page_commit+0x85/0xf0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.445802] ? _cond_resched+0x15/0x30
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.446104] ? kmem_cache_alloc_trace+0x17f/0x1e0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.446467] do_init_module+0x5a/0x210
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.446789] load_module.isra.71+0x20cb/0x27e0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.447140] ? m_show+0x1c0/0x1c0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.447474] ? vmap_page_range_noflush+0x282/0x420
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.447815] __do_sys_init_module+0x11c/0x180
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.448188] do_syscall_64+0x5b/0x1a0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.448540] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.448867] RIP: 0033:0x7faeb2b42fca
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.449181] Code: 48 8b 0d a9 7e 2c 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 af 00 00 00 0f 05 &amp;lt;48&amp;gt; 3d 01 f0 ff ff 73 01 c3 48 8b 0d 76 7e 2c 00 f7 d8 64 89 01 48
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.450132] RSP: 002b:00007fff584491d8 EFLAGS: 00000206 ORIG_RAX: 00000000000000af
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.450718] RAX: ffffffffffffffda RBX: 0000000000a903d0 RCX: 00007faeb2b42fca
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.451076] RDX: 000000000041a96e RSI: 000000000001f05b RDI: 0000000000a9f350
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.451493] RBP: 000000000041a96e R08: 0000000000000000 R09: 0000000000a93ee0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.451867] R10: 0000000000a93e00 R11: 0000000000000206 R12: 0000000000a9f350
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.452213] R13: 0000000000a905a0 R14: 0000000000040000 R15: 0000000000000000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.452568] ---[ end trace bce24ab776ddad45 ]---
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

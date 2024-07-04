@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Xfce4 on mkashi.com</title><link>https://mkashi.com/tags/xfce4/</link><description>Recent content in Xfce4 on mkashi.com</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Fri, 05 Jan 2024 10:17:25 +0900</lastBuildDate><atom:link href="https://mkashi.com/tags/xfce4/index.xml" rel="self" type="application/rss+xml"/><item><title>Ubuntu Server 22.04.3 LTS でxfce4と日本語環境の構築</title><link>https://mkashi.com/p/ubuntu-server-22.04.3-lts-%E3%81%A7xfce4%E3%81%A8%E6%97%A5%E6%9C%AC%E8%AA%9E%E7%92%B0%E5%A2%83%E3%81%AE%E6%A7%8B%E7%AF%89/</link><pubDate>Fri, 05 Jan 2024 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/ubuntu-server-22.04.3-lts-%E3%81%A7xfce4%E3%81%A8%E6%97%A5%E6%9C%AC%E8%AA%9E%E7%92%B0%E5%A2%83%E3%81%AE%E6%A7%8B%E7%AF%89/</guid><description>&lt;p>xfce4､Ubuntu Desktop､日本語パックのインストール&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">apt install xfce4 xfce4-goodies ubuntu-desktop fonts-noto-cjk language-pack-ja
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>ロケールを日本語に変更､またGUIの言語サポートからGUI用の日本語パックも入れる&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">localectl set-locale LANG=ja_JP.UTF-8
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>xface4だとIBusに関する追加設定が必要(&lt;a class="link" href="https://wiki.archlinux.jp/index.php/IBus" target="_blank" rel="noopener"
+>参考&lt;/a>)
+/etc/environment&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">GTK_IM_MODULE=ibus
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">QT_IM_MODULE=ibus
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">XMODIFIERS=@im=ibus
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>下記コマンドを自動起動するように設定&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">ibus-daemon -drxR
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

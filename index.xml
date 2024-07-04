@@ -1,0 +1,1475 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>mkashi.com</title><link>https://mkashi.com/</link><description>Recent content on mkashi.com</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Fri, 09 Feb 2024 10:09:53 +0900</lastBuildDate><atom:link href="https://mkashi.com/index.xml" rel="self" type="application/rss+xml"/><item><title>Wireguardセットアップメモ</title><link>https://mkashi.com/p/wireguard%E3%82%BB%E3%83%83%E3%83%88%E3%82%A2%E3%83%83%E3%83%97%E3%83%A1%E3%83%A2/</link><pubDate>Fri, 09 Feb 2024 10:09:53 +0900</pubDate><guid>https://mkashi.com/p/wireguard%E3%82%BB%E3%83%83%E3%83%88%E3%82%A2%E3%83%83%E3%83%97%E3%83%A1%E3%83%A2/</guid><description>&lt;h1 id="generate-config">Generate config
+&lt;/h1>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">mkdir server client
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">wg genkey | tee server/server.key | wg pubkey &amp;gt; server/server.pub
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">wg genkey | tee client/client.key | wg pubkey &amp;gt; client/client.pub
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cat &amp;lt;&amp;lt;EOF &amp;gt;server/wg0.conf
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[Interface]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ListenPort = &amp;lt;PORT&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PrivateKey = $(cat server/server.key)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Address = 169.254.255.1/28
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PostUp = iptables -t nat -A POSTROUTING -o ens5 -s 169.254.255.0/24 -j MASQUERADE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PostDown = iptables -t nat -D POSTROUTING -o ens5 -s 169.254.255.0/24 -j MASQUERADE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[Peer] #Mac
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PublicKey = $(cat client/client.pub)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">AllowedIPs = 169.254.255.2/32
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">EOF
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cat &amp;lt;&amp;lt;EOF &amp;gt;client/wg0.conf
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[Interface]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PrivateKey = $(cat client/client.key)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Address = 169.254.255.2/28
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[Peer]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PublicKey = $(cat server/server.pub)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">AllowedIPs = 169.254.255.0/28,&amp;lt;YOUR SUBNET&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Endpoint = &amp;lt;ENDPOIND&amp;gt;:&amp;lt;PORT&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PersistentKeepalive = 25
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">EOF
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="server-side">Server Side
+&lt;/h1>&lt;p>Copy server/wg0.conf to /etc/wireguard/&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">systemctl enable wg-quick@wg0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">systemctl start wg-quick@wg0
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="client-side">Client Side
+&lt;/h1>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-gdscript3" data-lang="gdscript3">&lt;span class="line">&lt;span class="cl">&lt;span class="n">brew&lt;/span> &lt;span class="n">install&lt;/span> &lt;span class="n">wireguard&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">go&lt;/span> &lt;span class="n">wireguard&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">tools&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Copy client/wg0.conf to /opt/homebrew/etc/wireguard/&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">sudo wg-quick up wg0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo wg show
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="aws-eni-settings">AWS ENI settings
+&lt;/h1>&lt;p>Disable source/destination check&lt;/p></description></item><item><title>Ubuntu Server 22.04.3 LTS でxfce4と日本語環境の構築</title><link>https://mkashi.com/p/ubuntu-server-22.04.3-lts-%E3%81%A7xfce4%E3%81%A8%E6%97%A5%E6%9C%AC%E8%AA%9E%E7%92%B0%E5%A2%83%E3%81%AE%E6%A7%8B%E7%AF%89/</link><pubDate>Fri, 05 Jan 2024 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/ubuntu-server-22.04.3-lts-%E3%81%A7xfce4%E3%81%A8%E6%97%A5%E6%9C%AC%E8%AA%9E%E7%92%B0%E5%A2%83%E3%81%AE%E6%A7%8B%E7%AF%89/</guid><description>&lt;p>xfce4､Ubuntu Desktop､日本語パックのインストール&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">apt install xfce4 xfce4-goodies ubuntu-desktop fonts-noto-cjk language-pack-ja
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>ロケールを日本語に変更､またGUIの言語サポートからGUI用の日本語パックも入れる&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">localectl set-locale LANG=ja_JP.UTF-8
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>xface4だとIBusに関する追加設定が必要(&lt;a class="link" href="https://wiki.archlinux.jp/index.php/IBus" target="_blank" rel="noopener"
+>参考&lt;/a>)
+/etc/environment&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">GTK_IM_MODULE=ibus
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">QT_IM_MODULE=ibus
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">XMODIFIERS=@im=ibus
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>下記コマンドを自動起動するように設定&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">ibus-daemon -drxR
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>Archives</title><link>https://mkashi.com/archives/</link><pubDate>Sun, 06 Mar 2022 00:00:00 +0000</pubDate><guid>https://mkashi.com/archives/</guid><description/></item><item><title>PacemakerでリソースのHAを監視する</title><link>https://mkashi.com/p/pacemaker%E3%81%A7%E3%83%AA%E3%82%BD%E3%83%BC%E3%82%B9%E3%81%AEha%E3%82%92%E7%9B%A3%E8%A6%96%E3%81%99%E3%82%8B/</link><pubDate>Sun, 30 May 2021 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/pacemaker%E3%81%A7%E3%83%AA%E3%82%BD%E3%83%BC%E3%82%B9%E3%81%AEha%E3%82%92%E7%9B%A3%E8%A6%96%E3%81%99%E3%82%8B/</guid><description>&lt;p>ノードごとにMailToリソースを作って各ノードに割り当てる。
+mailコマンドが必要なので入ってない場合は事前に入れる。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-gdscript3" data-lang="gdscript3">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># ノード1の監視&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pcs&lt;/span> &lt;span class="n">resource&lt;/span> &lt;span class="n">create&lt;/span> &lt;span class="n">MailTo1&lt;/span> &lt;span class="n">ocf&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">heartbeat&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">MailTo&lt;/span> &lt;span class="n">email&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&amp;lt;メールアドレス&amp;gt;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pcs&lt;/span> &lt;span class="n">constraint&lt;/span> &lt;span class="n">location&lt;/span> &lt;span class="n">MailTo1&lt;/span> &lt;span class="n">prefers&lt;/span> &lt;span class="o">&amp;lt;&lt;/span>&lt;span class="err">ノード&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="o">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># ノード2の監視&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pcs&lt;/span> &lt;span class="n">resource&lt;/span> &lt;span class="n">create&lt;/span> &lt;span class="n">MailTo2&lt;/span> &lt;span class="n">ocf&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">heartbeat&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">MailTo&lt;/span> &lt;span class="n">email&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&amp;lt;メールアドレス&amp;gt;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pcs&lt;/span> &lt;span class="n">constraint&lt;/span> &lt;span class="n">location&lt;/span> &lt;span class="n">MailTo2&lt;/span> &lt;span class="n">prefers&lt;/span> &lt;span class="o">&amp;lt;&lt;/span>&lt;span class="err">ノード&lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="o">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># ノード3の監視&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pcs&lt;/span> &lt;span class="n">resource&lt;/span> &lt;span class="n">create&lt;/span> &lt;span class="n">MailTo1&lt;/span> &lt;span class="n">ocf&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">heartbeat&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">MailTo&lt;/span> &lt;span class="n">email&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&amp;lt;メールアドレス&amp;gt;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pcs&lt;/span> &lt;span class="n">constraint&lt;/span> &lt;span class="n">location&lt;/span> &lt;span class="n">MailTo3&lt;/span> &lt;span class="n">prefers&lt;/span> &lt;span class="o">&amp;lt;&lt;/span>&lt;span class="err">ノード&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="o">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>Lenovo m75s small gen2でNTPサーバーと同期できない</title><link>https://mkashi.com/p/lenovo-m75s-small-gen2%E3%81%A7ntp%E3%82%B5%E3%83%BC%E3%83%90%E3%83%BC%E3%81%A8%E5%90%8C%E6%9C%9F%E3%81%A7%E3%81%8D%E3%81%AA%E3%81%84/</link><pubDate>Fri, 02 Apr 2021 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/lenovo-m75s-small-gen2%E3%81%A7ntp%E3%82%B5%E3%83%BC%E3%83%90%E3%83%BC%E3%81%A8%E5%90%8C%E6%9C%9F%E3%81%A7%E3%81%8D%E3%81%AA%E3%81%84/</guid><description>&lt;p>NTPはクライアント側のローカルに持っているハードウェアクロックとNTPサーバ側の時刻情報をしばらく比較した後に、NTPサーバ側がクライアントをrejectするかどうか決めるようである。その時にクライアント側のハードウェアクロックがあまりにも精度が悪いとサーバとの距離が遠いと判断されてflash=400 peer_distとしてrejectされる。jitterの値も1198.290と非常に高い。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">[root@m75s-1-host ~]# ntpq -c as
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ind assid status conf reach auth condition last_event cnt
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">===========================================================
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 1 47715 9024 yes yes none reject reachable 2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[root@m75s-1-host ~]# ntpq -c &amp;#34;rv 47715&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">associd=47715 status=9024 conf, reach, sel_reject, 2 events, reachable,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">srcadr=raspberrypi.mkashi.com, srcport=123, dstadr=192.168.151.241,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dstport=123, leap=00, stratum=2, precision=-18, rootdelay=3.922,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">rootdisp=5.783, refid=133.243.238.164,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">reftime=e4118348.66206e7a Fri, Apr 2 2021 11:49:28.398,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">rec=e41183d1.b1b84388 Fri, Apr 2 2021 11:51:45.694, reach=037,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">unreach=0, hmode=3, pmode=4, hpoll=6, ppoll=6, headway=1,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">flash=400 peer_dist, keyid=0, offset=1869.194, delay=0.979,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dispersion=438.293, jitter=1198.290, xleave=0.265,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">filtdelay= 0.98 0.94 0.67 0.43 1.05 0.00 0.00 0.00,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">filtoffset= 1869.19 1441.02 1006.12 557.80 109.76 0.00 0.00 0.00,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">filtdisp= 0.00 0.96 1.94 2.94 3.95 16000.0 16000.0 16000.0
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>ハードウェアクロックはm75sだとtsc, hpet, acpi_pmの中から選べる。tscが一番精度が高いのでtscがデフォルトになっているようである。ただm75sではtscの精度が悪く、実際の時間に比べてめちゃくちゃ進むのが遅くてNTPサーバから距離が遠いと判断されてしまうようだ。hpetだと問題なく同期できるようになるのでkernelの起動パラメータに&lt;code>clocksource=hpet&lt;/code>を設定する。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">[root@m75s-1-host ~]# cat /sys/devices/system/clocksource/clocksource0/available_clocksource
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">tsc hpet acpi_pm
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[root@m75s-1-host ~]# cat /sys/devices/system/clocksource/clocksource0/current_clocksource
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">tsc
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>hpetに変更後は下記の通りNTPサーバと同期できるようになった。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">[root@m75s-1-host ~]# ntpq -c as
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ind assid status conf reach auth condition last_event cnt
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">===========================================================
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> 1 35947 963a yes yes none sys.peer sys_peer 3
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[root@m75s-1-host ~]# ntpq -c &amp;#34;rv 35947&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">associd=35947 status=963a conf, reach, sel_sys.peer, 3 events, sys_peer,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">srcadr=raspberrypi.mkashi.com, srcport=123, dstadr=192.168.151.241,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dstport=123, leap=00, stratum=2, precision=-18, rootdelay=4.929,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">rootdisp=29.007, refid=133.243.238.164,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">reftime=e4125f84.662e55a0 Sat, Apr 3 2021 3:29:08.399,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">rec=e4126306.366cee04 Sat, Apr 3 2021 3:44:06.212, reach=377,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">unreach=0, hmode=3, pmode=4, hpoll=9, ppoll=9, headway=0, flash=00 ok,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">keyid=0, offset=0.164, delay=0.866, dispersion=11.731, jitter=0.211,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">xleave=0.235,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">filtdelay= 1.02 0.87 1.11 0.99 1.80 1.01 0.98 1.01,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">filtoffset= 0.24 0.16 0.08 -0.12 0.15 -0.09 -0.09 -0.13,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">filtdisp= 0.01 4.03 8.08 12.07 16.12 19.99 23.86 27.86
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>kernel 4.19.84-2.el7.nutanix.20190916.276.x86_64ではtscで同期できなかったが、5.8.0-55-genericでは特に問題なくデフォルトのままで同期できた。kernelのバグかもしれない。&lt;/p>
+&lt;p>参考: &lt;a class="link" href="http://log.or.cz/?p=80" target="_blank" rel="noopener"
+>http://log.or.cz/?p=80&lt;/a>&lt;/p></description></item><item><title>Lenovo m75s gen2でkernelにACS overrideパッチを当ててIOMMUグループを分割する</title><link>https://mkashi.com/p/lenovo-m75s-gen2%E3%81%A7kernel%E3%81%ABacs-override%E3%83%91%E3%83%83%E3%83%81%E3%82%92%E5%BD%93%E3%81%A6%E3%81%A6iommu%E3%82%B0%E3%83%AB%E3%83%BC%E3%83%97%E3%82%92%E5%88%86%E5%89%B2%E3%81%99%E3%82%8B/</link><pubDate>Sun, 28 Mar 2021 10:18:25 +0900</pubDate><guid>https://mkashi.com/p/lenovo-m75s-gen2%E3%81%A7kernel%E3%81%ABacs-override%E3%83%91%E3%83%83%E3%83%81%E3%82%92%E5%BD%93%E3%81%A6%E3%81%A6iommu%E3%82%B0%E3%83%AB%E3%83%BC%E3%83%97%E3%82%92%E5%88%86%E5%89%B2%E3%81%99%E3%82%8B/</guid><description>&lt;p>使用しているkernelはNutanix CEのAHVに付属の4.19.84-2.el7.nutanix.20190916.276.x86_64。基本的にRHEL7のものと同じと思われる。&lt;/p>
+&lt;p>ACS overrideを有効にすることで内蔵のSATAコントローラのIOMMUグループが12に変わり他のPCIデバイスが同じグループ内にない状態になったので、CVMにSATAコントローラ単体でパススルーすることができるようになった。ACS overrideがないとホスト側に必要なPCIデバイスまでパススルーされてしまいホストごとパニックしてしまう。&lt;/p>
+&lt;p>ACS overrideパッチ適用前&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">IOMMU Group 0 00:01.0 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe Dummy Host Bridge [1022:1632]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 02:00.0 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ef]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 02:00.1 SATA controller [0106]: Advanced Micro Devices, Inc. [AMD] Device [1022:43eb]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 02:00.2 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43e9]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 03:00.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 03:01.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 03:02.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 03:03.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 03:04.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 03:08.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 03:09.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 07:00.0 USB controller [0c03]: Renesas Technology Corp. uPD720202 USB 3.0 Host Controller [1912:0015] (rev 02)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 09:00.0 Ethernet controller [0200]: Realtek Semiconductor Co., Ltd. RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller [10ec:8168] (rev 0e)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 11 0b:00.0 Non-Volatile memory controller [0108]: Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983 [144d:a808]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 1 00:01.1 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe GPP Bridge [1022:1633]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 2 00:02.0 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe Dummy Host Bridge [1022:1632]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 3 00:02.1 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe GPP Bridge [1022:1634]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 4 00:02.2 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe GPP Bridge [1022:1634]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 00:08.0 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe Dummy Host Bridge [1022:1632]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 00:08.1 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Renoir Internal PCIe GPP Bridge to Bus [1022:1635]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 0c:00.0 VGA compatible controller [0300]: Advanced Micro Devices, Inc. [AMD/ATI] Renoir [1002:1636] (rev d8)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 0c:00.1 Audio device [0403]: Advanced Micro Devices, Inc. [AMD/ATI] Device [1002:1637]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 0c:00.2 Encryption controller [1080]: Advanced Micro Devices, Inc. [AMD] Family 17h (Models 10h-1fh) Platform Security Processor [1022:15df]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 0c:00.3 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD] Renoir USB 3.1 [1022:1639]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 0c:00.4 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD] Renoir USB 3.1 [1022:1639]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 0c:00.5 Multimedia controller [0480]: Advanced Micro Devices, Inc. [AMD] Raven/Raven2/FireFlight/Renoir Audio Processor [1022:15e2] (rev 01)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 0c:00.6 Audio device [0403]: Advanced Micro Devices, Inc. [AMD] Family 17h (Models 10h-1fh) HD Audio Controller [1022:15e3]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 6 00:14.0 SMBus [0c05]: Advanced Micro Devices, Inc. [AMD] FCH SMBus Controller [1022:790b] (rev 51)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 6 00:14.3 ISA bridge [0601]: Advanced Micro Devices, Inc. [AMD] FCH LPC Bridge [1022:790e] (rev 51)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:18.0 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 0 [1022:1448]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:18.1 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 1 [1022:1449]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:18.2 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 2 [1022:144a]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:18.3 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 3 [1022:144b]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:18.4 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 4 [1022:144c]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:18.5 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 5 [1022:144d]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:18.6 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 6 [1022:144e]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:18.7 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 7 [1022:144f]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 8 01:00.0 Ethernet controller [0200]: Intel Corporation 82599ES 10-Gigabit SFI/SFP+ Network Connection [8086:10fb] (rev 01)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 9 01:00.1 Ethernet controller [0200]: Intel Corporation 82599ES 10-Gigabit SFI/SFP+ Network Connection [8086:10fb] (rev 01)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>ACS overrideパッチ適用後
+&lt;code>pcie_acs_override=downstream,multifunction&lt;/code>を設定して再起動&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">IOMMU Group 0 00:01.0 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe Dummy Host Bridge [1022:1632]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 10 01:00.1 Ethernet controller [0200]: Intel Corporation 82599ES 10-Gigabit SFI/SFP+ Network Connection [8086:10fb] (rev 01)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 11 02:00.0 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ef]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 12 02:00.1 SATA controller [0106]: Advanced Micro Devices, Inc. [AMD] Device [1022:43eb]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 13 02:00.2 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43e9]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 14 03:00.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 15 03:01.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 16 03:02.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 17 03:03.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 18 03:04.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 19 03:08.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 1 00:01.1 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe GPP Bridge [1022:1633]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 20 03:09.0 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Device [1022:43ea]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 21 07:00.0 USB controller [0c03]: Renesas Technology Corp. uPD720202 USB 3.0 Host Controller [1912:0015] (rev 02)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 22 09:00.0 Ethernet controller [0200]: Realtek Semiconductor Co., Ltd. RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller [10ec:8168] (rev 0e)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 23 0b:00.0 Non-Volatile memory controller [0108]: Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983 [144d:a808]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 24 0c:00.0 VGA compatible controller [0300]: Advanced Micro Devices, Inc. [AMD/ATI] Renoir [1002:1636] (rev d8)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 25 0c:00.1 Audio device [0403]: Advanced Micro Devices, Inc. [AMD/ATI] Device [1002:1637]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 26 0c:00.2 Encryption controller [1080]: Advanced Micro Devices, Inc. [AMD] Family 17h (Models 10h-1fh) Platform Security Processor [1022:15df]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 27 0c:00.3 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD] Renoir USB 3.1 [1022:1639]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 28 0c:00.4 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD] Renoir USB 3.1 [1022:1639]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 29 0c:00.5 Multimedia controller [0480]: Advanced Micro Devices, Inc. [AMD] Raven/Raven2/FireFlight/Renoir Audio Processor [1022:15e2] (rev 01)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 2 00:02.0 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe Dummy Host Bridge [1022:1632]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 30 0c:00.6 Audio device [0403]: Advanced Micro Devices, Inc. [AMD] Family 17h (Models 10h-1fh) HD Audio Controller [1022:15e3]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 3 00:02.1 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe GPP Bridge [1022:1634]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 4 00:02.2 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe GPP Bridge [1022:1634]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 5 00:08.0 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir PCIe Dummy Host Bridge [1022:1632]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 6 00:08.1 PCI bridge [0604]: Advanced Micro Devices, Inc. [AMD] Renoir Internal PCIe GPP Bridge to Bus [1022:1635]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:14.0 SMBus [0c05]: Advanced Micro Devices, Inc. [AMD] FCH SMBus Controller [1022:790b] (rev 51)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 7 00:14.3 ISA bridge [0601]: Advanced Micro Devices, Inc. [AMD] FCH LPC Bridge [1022:790e] (rev 51)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 8 00:18.0 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 0 [1022:1448]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 8 00:18.1 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 1 [1022:1449]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 8 00:18.2 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 2 [1022:144a]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 8 00:18.3 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 3 [1022:144b]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 8 00:18.4 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 4 [1022:144c]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 8 00:18.5 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 5 [1022:144d]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 8 00:18.6 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 6 [1022:144e]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 8 00:18.7 Host bridge [0600]: Advanced Micro Devices, Inc. [AMD] Renoir Device 24: Function 7 [1022:144f]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">IOMMU Group 9 01:00.0 Ethernet controller [0200]: Intel Corporation 82599ES 10-Gigabit SFI/SFP+ Network Connection [8086:10fb] (rev 01)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>参考: &lt;a class="link" href="https://wiki.archlinux.jp/index.php/OVMF_%e3%81%ab%e3%82%88%e3%82%8b_PCI_%e3%83%91%e3%82%b9%e3%82%b9%e3%83%ab%e3%83%bc#IOMMU_.E3.82.B0.E3.83.AB.E3.83.BC.E3.83.97.E3.81.AE.E3.83.90.E3.82.A4.E3.83.91.E3.82.B9_.28ACS_.E4.B8.8A.E6.9B.B8.E3.81.8D.E3.83.91.E3.83.83.E3.83.81.29" target="_blank" rel="noopener"
+>archlinux wiki&lt;/a>&lt;/p></description></item><item><title>Lenovo m75s gen2 smallにNutanix CE 2020.09.16を入れる</title><link>https://mkashi.com/p/lenovo-m75s-gen2-small%E3%81%ABnutanix-ce-2020.09.16%E3%82%92%E5%85%A5%E3%82%8C%E3%82%8B/</link><pubDate>Sun, 28 Mar 2021 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/lenovo-m75s-gen2-small%E3%81%ABnutanix-ce-2020.09.16%E3%82%92%E5%85%A5%E3%82%8C%E3%82%8B/</guid><description>&lt;p>インストール前に下記のスライドは必読
+&lt;a class="link" href="https://www.slideshare.net/smzksts/nutanix-community-edition-518" target="_blank" rel="noopener"
+>https://www.slideshare.net/smzksts/nutanix-community-edition-518&lt;/a>&lt;/p>
+&lt;p>ドライブ構成はUSBメモリ(AHV), NVMe(CVM), SATA SSD(CVM), SATA HDD(DATA)
+m75s gen2で躓いたポイントは以下&lt;/p>
+&lt;ul>
+&lt;li>USBからブート後、一度USBを抜き差ししないと&lt;code>StandardError: Failed command: [hdparm -z /dev/sdc] with reason [BLKRRPART failed: Device or resource busy]&lt;/code>というメッセージが出てインストーラが起動しない&lt;/li>
+&lt;li>上記スライド p19 「インストール準備 起動優先度の設定 • に入り、 起動デバイスの優先順位を変更し、 インストーラー メモリが 最上位となるように設定する • キーや キー等 機種によって異なる で 入れるブートデバイス手動選択画面から 起動すると、なぜかスクリーンサイズ不足に なってしまい、インストールを続行できない （報告多数）」に従ってもインストールが続行できなかった。しょうがないのでUSB NIC(QNA-UC5G1T)をつないでsshdを起動し./ce_installer &amp;amp;&amp;amp; screen -rでインストールを行った。&lt;/li>
+&lt;li>CVM用にNVMeを選択した場合は、NVMeのメーカーによってはインストール後、CVMのブートに失敗する。Transcend TS512GMTE110Sだと失敗、Samsung 970 EVOだと成功した。これはTS512GMTE110Sに採用されてるSMIのコントローラチップのバグのせいっぽい。https://bugzilla.kernel.org/show_bug.cgi?id=20205&lt;/li>
+&lt;/ul>
+&lt;p>起動失敗時はQemuのログを見ると下記のようなメッセージが出ていた。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">qemu-system-x86_64: -device vfio-pci,host=01:00.0,id=hostdev2,bus=pci.0,addr=0x8: vfio error: 0000:01:00.0: failed to add PCI capability 0x11[0x50]@0xb0: table &amp;amp; pba overlap, or they don&amp;#39;t fit in BARs, or don&amp;#39;t align
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>Kernel panic from 4.19.84-300.el7.x86_64</title><link>https://mkashi.com/p/kernel-panic-from-4.19.84-300.el7.x86_64/</link><pubDate>Wed, 17 Feb 2021 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/kernel-panic-from-4.19.84-300.el7.x86_64/</guid><description>&lt;p>AHV用にACS overrideパッチを当てたkernelビルドしたらpanicした。
+ソースを見たがよくわからないので放置。
+パッチは無関係で暗号化のセルフテスト周りでpanicしているようである。
+FIPSをオフにすればこのセルフテストは動かなくなる。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt"> 10
+&lt;/span>&lt;span class="lnt"> 11
+&lt;/span>&lt;span class="lnt"> 12
+&lt;/span>&lt;span class="lnt"> 13
+&lt;/span>&lt;span class="lnt"> 14
+&lt;/span>&lt;span class="lnt"> 15
+&lt;/span>&lt;span class="lnt"> 16
+&lt;/span>&lt;span class="lnt"> 17
+&lt;/span>&lt;span class="lnt"> 18
+&lt;/span>&lt;span class="lnt"> 19
+&lt;/span>&lt;span class="lnt"> 20
+&lt;/span>&lt;span class="lnt"> 21
+&lt;/span>&lt;span class="lnt"> 22
+&lt;/span>&lt;span class="lnt"> 23
+&lt;/span>&lt;span class="lnt"> 24
+&lt;/span>&lt;span class="lnt"> 25
+&lt;/span>&lt;span class="lnt"> 26
+&lt;/span>&lt;span class="lnt"> 27
+&lt;/span>&lt;span class="lnt"> 28
+&lt;/span>&lt;span class="lnt"> 29
+&lt;/span>&lt;span class="lnt"> 30
+&lt;/span>&lt;span class="lnt"> 31
+&lt;/span>&lt;span class="lnt"> 32
+&lt;/span>&lt;span class="lnt"> 33
+&lt;/span>&lt;span class="lnt"> 34
+&lt;/span>&lt;span class="lnt"> 35
+&lt;/span>&lt;span class="lnt"> 36
+&lt;/span>&lt;span class="lnt"> 37
+&lt;/span>&lt;span class="lnt"> 38
+&lt;/span>&lt;span class="lnt"> 39
+&lt;/span>&lt;span class="lnt"> 40
+&lt;/span>&lt;span class="lnt"> 41
+&lt;/span>&lt;span class="lnt"> 42
+&lt;/span>&lt;span class="lnt"> 43
+&lt;/span>&lt;span class="lnt"> 44
+&lt;/span>&lt;span class="lnt"> 45
+&lt;/span>&lt;span class="lnt"> 46
+&lt;/span>&lt;span class="lnt"> 47
+&lt;/span>&lt;span class="lnt"> 48
+&lt;/span>&lt;span class="lnt"> 49
+&lt;/span>&lt;span class="lnt"> 50
+&lt;/span>&lt;span class="lnt"> 51
+&lt;/span>&lt;span class="lnt"> 52
+&lt;/span>&lt;span class="lnt"> 53
+&lt;/span>&lt;span class="lnt"> 54
+&lt;/span>&lt;span class="lnt"> 55
+&lt;/span>&lt;span class="lnt"> 56
+&lt;/span>&lt;span class="lnt"> 57
+&lt;/span>&lt;span class="lnt"> 58
+&lt;/span>&lt;span class="lnt"> 59
+&lt;/span>&lt;span class="lnt"> 60
+&lt;/span>&lt;span class="lnt"> 61
+&lt;/span>&lt;span class="lnt"> 62
+&lt;/span>&lt;span class="lnt"> 63
+&lt;/span>&lt;span class="lnt"> 64
+&lt;/span>&lt;span class="lnt"> 65
+&lt;/span>&lt;span class="lnt"> 66
+&lt;/span>&lt;span class="lnt"> 67
+&lt;/span>&lt;span class="lnt"> 68
+&lt;/span>&lt;span class="lnt"> 69
+&lt;/span>&lt;span class="lnt"> 70
+&lt;/span>&lt;span class="lnt"> 71
+&lt;/span>&lt;span class="lnt"> 72
+&lt;/span>&lt;span class="lnt"> 73
+&lt;/span>&lt;span class="lnt"> 74
+&lt;/span>&lt;span class="lnt"> 75
+&lt;/span>&lt;span class="lnt"> 76
+&lt;/span>&lt;span class="lnt"> 77
+&lt;/span>&lt;span class="lnt"> 78
+&lt;/span>&lt;span class="lnt"> 79
+&lt;/span>&lt;span class="lnt"> 80
+&lt;/span>&lt;span class="lnt"> 81
+&lt;/span>&lt;span class="lnt"> 82
+&lt;/span>&lt;span class="lnt"> 83
+&lt;/span>&lt;span class="lnt"> 84
+&lt;/span>&lt;span class="lnt"> 85
+&lt;/span>&lt;span class="lnt"> 86
+&lt;/span>&lt;span class="lnt"> 87
+&lt;/span>&lt;span class="lnt"> 88
+&lt;/span>&lt;span class="lnt"> 89
+&lt;/span>&lt;span class="lnt"> 90
+&lt;/span>&lt;span class="lnt"> 91
+&lt;/span>&lt;span class="lnt"> 92
+&lt;/span>&lt;span class="lnt"> 93
+&lt;/span>&lt;span class="lnt"> 94
+&lt;/span>&lt;span class="lnt"> 95
+&lt;/span>&lt;span class="lnt"> 96
+&lt;/span>&lt;span class="lnt"> 97
+&lt;/span>&lt;span class="lnt"> 98
+&lt;/span>&lt;span class="lnt"> 99
+&lt;/span>&lt;span class="lnt">100
+&lt;/span>&lt;span class="lnt">101
+&lt;/span>&lt;span class="lnt">102
+&lt;/span>&lt;span class="lnt">103
+&lt;/span>&lt;span class="lnt">104
+&lt;/span>&lt;span class="lnt">105
+&lt;/span>&lt;span class="lnt">106
+&lt;/span>&lt;span class="lnt">107
+&lt;/span>&lt;span class="lnt">108
+&lt;/span>&lt;span class="lnt">109
+&lt;/span>&lt;span class="lnt">110
+&lt;/span>&lt;span class="lnt">111
+&lt;/span>&lt;span class="lnt">112
+&lt;/span>&lt;span class="lnt">113
+&lt;/span>&lt;span class="lnt">114
+&lt;/span>&lt;span class="lnt">115
+&lt;/span>&lt;span class="lnt">116
+&lt;/span>&lt;span class="lnt">117
+&lt;/span>&lt;span class="lnt">118
+&lt;/span>&lt;span class="lnt">119
+&lt;/span>&lt;span class="lnt">120
+&lt;/span>&lt;span class="lnt">121
+&lt;/span>&lt;span class="lnt">122
+&lt;/span>&lt;span class="lnt">123
+&lt;/span>&lt;span class="lnt">124
+&lt;/span>&lt;span class="lnt">125
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-text" data-lang="text">&lt;span class="line">&lt;span class="cl">[ 1.346310] alg: self-tests for sha1-ssse3 (sha1) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.346392] alg: self-tests for sha1-ni (sha1) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.349783] alg: self-tests for sha256-ssse3 (sha256) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.349884] alg: self-tests for sha224-ssse3 (sha224) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.350011] alg: self-tests for sha256-ni (sha256) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.350058] alg: self-tests for sha224-ni (sha224) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.357928] alg: self-tests for sha512-generic (sha512) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.357997] alg: self-tests for sha384-generic (sha384) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.360691] alg: self-tests for sha512-ssse3 (sha512) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.360762] alg: self-tests for sha384-ssse3 (sha384) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.374665] CPU feature &amp;#39;AVX registers&amp;#39; is not supported.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.410444] alg: self-tests for sha1 (sha1) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.410566] alg: self-tests for ecb(des3_ede) (ecb(des3_ede)) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.410687] alg: self-tests for cbc(des3_ede) (cbc(des3_ede)) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.410838] alg: self-tests for ctr(des3_ede) (ctr(des3_ede)) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.410861] alg: self-tests for sha256 (sha256) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.410897] alg: self-tests for ecb(aes) (ecb(aes)) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.410935] alg: self-tests for cbc(aes) (cbc(aes)) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.410973] alg: self-tests for xts(aes) (xts(aes)) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.411013] alg: self-tests for ctr(aes) (ctr(aes)) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.413166] alg: self-tests for rfc3686(ctr-aes-aesni) (rfc3686(ctr(aes))) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.413230] alg: self-tests for rfc3686(ctr(aes)) (rfc3686(ctr(aes))) passed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.415995] alg: skcipher: Failed to load transform for cfb(aes): -2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.415999] Kernel panic - not syncing: cfb(aes): cfb(aes) alg self test failed in fips mode!
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.416347] CPU: 1 PID: 407 Comm: modprobe Not tainted 4.19.84-300.el7.x86_64 #1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.416577] Hardware name: Nutanix AHV, BIOS 1.11.0-2.el7 04/01/2014
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.416776] Call Trace:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.416934] dump_stack+0x64/0x83
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.417087] panic+0xe8/0x25c
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.417250] alg_test.part.14+0x360/0x380
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.417414] do_test+0x4e74/0x5eed [tcrypt]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.417595] do_test+0x5edd/0x5eed [tcrypt]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.417782] ? 0xffffffffc026a000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.417949] tcrypt_mod_init+0x50/0x1000 [tcrypt]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.418079] ? 0xffffffffc026a000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.418216] do_one_initcall+0x4e/0x1d4
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.418379] ? free_unref_page_commit+0x85/0xf0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.418560] ? _cond_resched+0x15/0x30
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.418878] ? kmem_cache_alloc_trace+0x17f/0x1e0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.419224] do_init_module+0x5a/0x210
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.419464] load_module.isra.71+0x20cb/0x27e0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.419704] ? m_show+0x1c0/0x1c0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.419964] ? vmap_page_range_noflush+0x282/0x420
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.420286] __do_sys_init_module+0x11c/0x180
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.420575] do_syscall_64+0x5b/0x1a0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.420834] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.421277] RIP: 0033:0x7faeb2b42fca
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.421516] Code: 48 8b 0d a9 7e 2c 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 af 00 00 00 0f 05 &amp;lt;48&amp;gt; 3d 01 f0 ff ff 73 01 c3 48 8b 0d 76 7e 2c 00 f7 d8 64 89 01 48
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.422164] RSP: 002b:00007fff584491d8 EFLAGS: 00000206 ORIG_RAX: 00000000000000af
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.422555] RAX: ffffffffffffffda RBX: 0000000000a903d0 RCX: 00007faeb2b42fca
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.422828] RDX: 000000000041a96e RSI: 000000000001f05b RDI: 0000000000a9f350
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.423099] RBP: 000000000041a96e R08: 0000000000000000 R09: 0000000000a93ee0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.423449] R10: 0000000000a93e00 R11: 0000000000000206 R12: 0000000000a9f350
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.423722] R13: 0000000000a905a0 R14: 0000000000040000 R15: 0000000000000000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.424063] Kernel Offset: 0x2d000000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.424682] ---[ end Kernel panic - not syncing: cfb(aes): cfb(aes) alg self test failed in fips mode! ]---
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.425439] ------------[ cut here ]------------
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.425751] sched: Unexpected reschedule of offline CPU#0!
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.426092] WARNING: CPU: 1 PID: 407 at arch/x86/kernel/smp.c:128 native_smp_send_reschedule+0x39/0x40
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.426728] Modules linked in: tcrypt(+) authenc cmac wp512 twofish_generic twofish_x86_64_3way twofish_x86_64 twofish_common tea sha512_ssse3 sha512_generic sha256_ssse3 sha1_ssse3 serpent_sse2_x86_64 serpent_generic seed salsa20_generic rmd320 rmd256 rmd160 rmd128 michael_mic md4 khazad fcrypt dm_crypt des3_ede_x86_64 des_generic crc32c_intel ccm cast6_generic cast_common camellia_generic camellia_x86_64 blowfish_generic blowfish_x86_64 blowfish_common arc4 ansi_cprng vfio_pci irqbypass vfio_virqfd vfio_iommu_type1 vfio ipmi_devintf ipmi_msghandler
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.428579] CPU: 1 PID: 407 Comm: modprobe Not tainted 4.19.84-300.el7.x86_64 #1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.429074] Hardware name: Nutanix AHV, BIOS 1.11.0-2.el7 04/01/2014
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.429404] RIP: 0010:native_smp_send_reschedule+0x39/0x40
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.429661] Code: 0f 92 c0 84 c0 74 15 48 8b 05 03 55 14 01 be fd 00 00 00 48 8b 40 30 e9 d5 d7 ba 00 89 fe 48 c7 c7 98 bc 0b af e8 c7 fb 05 00 &amp;lt;0f&amp;gt; 0b c3 0f 1f 40 00 0f 1f 44 00 00 53 48 83 ec 20 65 48 8b 04 25
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.430412] RSP: 0018:ffff9a6438043cf8 EFLAGS: 00010082
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.430723] RAX: 0000000000000000 RBX: ffff9a642f583b80 RCX: 0000000000000006
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.431079] RDX: 0000000000000000 RSI: 0000000000000086 RDI: ffff9a64380568f0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.431464] RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000390
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.431808] R10: 0000000000000000 R11: 0000000000000000 R12: ffff9a642f58435c
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.432167] R13: 0000000000000000 R14: 0000000000000046 R15: 0000000000020400
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.432505] FS: 00007faeb367e740(0000) GS:ffff9a6438040000(0000) knlGS:0000000000000000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.433027] CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.433367] CR2: 00007f73d061c288 CR3: 00000001304d6000 CR4: 00000000003006e0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.433718] Call Trace:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.434014] &amp;lt;IRQ&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.434310] try_to_wake_up+0x3f0/0x450
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.434623] __wake_up_common+0x8f/0x160
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.434939] ep_poll_callback+0x1af/0x300
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.435263] __wake_up_common+0x8f/0x160
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.435563] __wake_up_common_lock+0x7a/0xc0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.435895] irq_work_run_list+0x4c/0x70
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.436228] ? tick_sched_do_timer+0x80/0x80
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.436548] update_process_times+0x3b/0x50
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.436854] tick_sched_handle+0x25/0x60
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.437176] tick_sched_timer+0x37/0x70
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.437485] __hrtimer_run_queues+0xfb/0x270
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.437800] hrtimer_interrupt+0x122/0x270
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.438104] smp_apic_timer_interrupt+0x6a/0x140
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.438446] apic_timer_interrupt+0xf/0x20
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.438764] &amp;lt;/IRQ&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.439049] RIP: 0010:panic+0x209/0x25c
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.439381] Code: 83 3d 36 d6 8e 01 00 74 05 e8 3f 60 02 00 48 c7 c6 20 32 9a af 48 c7 c7 d0 6e 0c af 31 c0 e8 8e 5e 06 00 fb 66 0f 1f 44 00 00 &amp;lt;45&amp;gt; 31 e4 e8 0b c0 0c 00 4d 39 ec 7c 1e 41 83 f6 01 48 8b 05 db d5
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.440264] RSP: 0018:ffffadfd0144baf8 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff13
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.440783] RAX: 0000000000000060 RBX: 0000000000000000 RCX: 0000000000000006
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.441211] RDX: 0000000000000000 RSI: 0000000000000092 RDI: ffff9a64380568f0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.441639] RBP: ffffadfd0144bb68 R08: 0000000000000000 R09: 000000000000038e
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.442034] R10: 0000000000000000 R11: 0000000000000000 R12: ffffffffaf105b38
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.442449] R13: 0000000000000000 R14: 0000000000000000 R15: ffffadfd0144be88
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.442829] ? panic+0x202/0x25c
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.443135] alg_test.part.14+0x360/0x380
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.443494] do_test+0x4e74/0x5eed [tcrypt]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.443838] do_test+0x5edd/0x5eed [tcrypt]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.444160] ? 0xffffffffc026a000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.444484] tcrypt_mod_init+0x50/0x1000 [tcrypt]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.444811] ? 0xffffffffc026a000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.445121] do_one_initcall+0x4e/0x1d4
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.445466] ? free_unref_page_commit+0x85/0xf0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.445802] ? _cond_resched+0x15/0x30
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.446104] ? kmem_cache_alloc_trace+0x17f/0x1e0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.446467] do_init_module+0x5a/0x210
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.446789] load_module.isra.71+0x20cb/0x27e0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.447140] ? m_show+0x1c0/0x1c0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.447474] ? vmap_page_range_noflush+0x282/0x420
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.447815] __do_sys_init_module+0x11c/0x180
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.448188] do_syscall_64+0x5b/0x1a0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.448540] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.448867] RIP: 0033:0x7faeb2b42fca
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.449181] Code: 48 8b 0d a9 7e 2c 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 af 00 00 00 0f 05 &amp;lt;48&amp;gt; 3d 01 f0 ff ff 73 01 c3 48 8b 0d 76 7e 2c 00 f7 d8 64 89 01 48
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.450132] RSP: 002b:00007fff584491d8 EFLAGS: 00000206 ORIG_RAX: 00000000000000af
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.450718] RAX: ffffffffffffffda RBX: 0000000000a903d0 RCX: 00007faeb2b42fca
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.451076] RDX: 000000000041a96e RSI: 000000000001f05b RDI: 0000000000a9f350
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.451493] RBP: 000000000041a96e R08: 0000000000000000 R09: 0000000000a93ee0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.451867] R10: 0000000000a93e00 R11: 0000000000000206 R12: 0000000000a9f350
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.452213] R13: 0000000000a905a0 R14: 0000000000040000 R15: 0000000000000000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[ 1.452568] ---[ end trace bce24ab776ddad45 ]---
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>CertbotによるLet’s Encryptの自動更新</title><link>https://mkashi.com/p/certbot%E3%81%AB%E3%82%88%E3%82%8Blets-encrypt%E3%81%AE%E8%87%AA%E5%8B%95%E6%9B%B4%E6%96%B0/</link><pubDate>Sat, 23 Jan 2021 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/certbot%E3%81%AB%E3%82%88%E3%82%8Blets-encrypt%E3%81%AE%E8%87%AA%E5%8B%95%E6%9B%B4%E6%96%B0/</guid><description>&lt;p>自分で運用しているDNSサーバを使ってCertbotによるLet’s Encryptの証明書の自動更新を行う。
+下記のcertbot-renew.shを1日に1回など定期的に実行する。deploy-hookは使ってるhttpdをリロードするコマンドを入れる。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#!/bin/sh
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/usr/bin/certbot renew --preferred-challenges dns-01 --manual-auth-hook /root/bin/auth-hook.sh --manual-cleanup-hook /root/bin/clean-hook.sh --deploy-hook &lt;span class="s2">&amp;#34;systemctl reload apache2&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>auth-hook.sh: DNSサーバにTXTレコードを仕込むシェルスクリプト&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#!/bin/sh
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;_acme-challenge.&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">CERTBOT_DOMAIN&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">. IN TXT \&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">CERTBOT_VALIDATION&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">\&amp;#34;&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> ssh dns &lt;span class="s2">&amp;#34;cat &amp;gt;&amp;gt;/etc/bind/mkashi.com.zone&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ssh dns systemctl restart bind9
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ssh dns cat /etc/bind/mkashi.com.zone
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>clean-hook.sh: DNSサーバからTXTレコードを削除するスクリプト&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#!/bin/sh
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ssh dns &lt;span class="s2">&amp;#34;sed -i -e &amp;#39;/_acme-challenge.&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">CERTBOT_DOMAIN&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">. IN TXT \&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">CERTBOT_VALIDATION&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">\&amp;#34;/d&amp;#39; /etc/bind/mkashi.com.zone&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ssh dns systemctl restart bind9
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ssh dns cat /etc/bind/mkashi.com.zone
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>libvirtでbacking store for image is self-referentialのエラーでVMの起動に失敗</title><link>https://mkashi.com/p/libvirt%E3%81%A7backing-store-for-image-is-self-referential%E3%81%AE%E3%82%A8%E3%83%A9%E3%83%BC%E3%81%A7vm%E3%81%AE%E8%B5%B7%E5%8B%95%E3%81%AB%E5%A4%B1%E6%95%97/</link><pubDate>Sat, 26 Dec 2020 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/libvirt%E3%81%A7backing-store-for-image-is-self-referential%E3%81%AE%E3%82%A8%E3%83%A9%E3%83%BC%E3%81%A7vm%E3%81%AE%E8%B5%B7%E5%8B%95%E3%81%AB%E5%A4%B1%E6%95%97/</guid><description>&lt;p>libvitで以下のような感じで起動に失敗する場合の対処法&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-text" data-lang="text">&lt;span class="line">&lt;span class="cl">error: Failed to start domain dns
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">error: internal error: backing store for /var/lib/libvirt/images/dns.latest (/var/lib/libvirt/images/dns.20201226050002-snap) is self-referential
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>対象VMのスナップショット一覧を確認&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">root@mks-m75q-1:~# ll /var/lib/libvirt/images/dns.*
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">2721972224&lt;/span> 12月 &lt;span class="m">18&lt;/span> 11:00 /var/lib/libvirt/images/dns.20201212001502-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">24838144&lt;/span> 12月 &lt;span class="m">18&lt;/span> 11:00 /var/lib/libvirt/images/dns.20201218050002-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">3407872&lt;/span> 12月 &lt;span class="m">18&lt;/span> 09:48 /var/lib/libvirt/images/dns.20201218093744-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">4521984&lt;/span> 12月 &lt;span class="m">18&lt;/span> 09:59 /var/lib/libvirt/images/dns.20201218094746-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">45416448&lt;/span> 12月 &lt;span class="m">18&lt;/span> 10:16 /var/lib/libvirt/images/dns.20201218095908-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">8781824&lt;/span> 12月 &lt;span class="m">18&lt;/span> 10:36 /var/lib/libvirt/images/dns.20201218101540-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">3670016&lt;/span> 12月 &lt;span class="m">18&lt;/span> 10:39 /var/lib/libvirt/images/dns.20201218103530-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">33816576&lt;/span> 12月 &lt;span class="m">18&lt;/span> 10:48 /var/lib/libvirt/images/dns.20201218103837-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">4194304&lt;/span> 12月 &lt;span class="m">18&lt;/span> 10:51 /var/lib/libvirt/images/dns.20201218104836-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">4259840&lt;/span> 12月 &lt;span class="m">18&lt;/span> 10:56 /var/lib/libvirt/images/dns.20201218105121-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">3735552&lt;/span> 12月 &lt;span class="m">18&lt;/span> 11:00 /var/lib/libvirt/images/dns.20201218105635-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">288358400&lt;/span> 12月 &lt;span class="m">19&lt;/span> 05:00 /var/lib/libvirt/images/dns.20201218110021-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">591462400&lt;/span> 12月 &lt;span class="m">20&lt;/span> 05:00 /var/lib/libvirt/images/dns.20201219050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">252968960&lt;/span> 12月 &lt;span class="m">21&lt;/span> 05:00 /var/lib/libvirt/images/dns.20201220050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">283901952&lt;/span> 12月 &lt;span class="m">22&lt;/span> 05:00 /var/lib/libvirt/images/dns.20201221050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">83034112&lt;/span> 12月 &lt;span class="m">23&lt;/span> 05:00 /var/lib/libvirt/images/dns.20201222050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">243269632&lt;/span> 12月 &lt;span class="m">24&lt;/span> 05:00 /var/lib/libvirt/images/dns.20201223050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">261750784&lt;/span> 12月 &lt;span class="m">25&lt;/span> 05:00 /var/lib/libvirt/images/dns.20201224050002-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">246022144&lt;/span> 12月 &lt;span class="m">26&lt;/span> 05:00 /var/lib/libvirt/images/dns.20201225050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> root root &lt;span class="m">225443840&lt;/span> 12月 &lt;span class="m">26&lt;/span> 18:40 /var/lib/libvirt/images/dns.20201226050002-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">lrwxrwxrwx &lt;span class="m">1&lt;/span> root root &lt;span class="m">47&lt;/span> 12月 &lt;span class="m">26&lt;/span> 05:00 /var/lib/libvirt/images/dns.latest -&amp;gt; /var/lib/libvirt/images/dns.20201226050002-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw-rw-r-- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">13776781312&lt;/span> 12月 &lt;span class="m">12&lt;/span> 10:07 /var/lib/libvirt/images/dns.qcow2
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>各スナップショットのbacking fileを確認
+何故か/var/lib/libvirt/images/dns.20201218104836-snapが/var/lib/libvirt/images/dns.latestを指してる&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">root@mks-m75q-1:~# ls /var/lib/libvirt/images/dns.* &lt;span class="p">|&lt;/span> &lt;span class="k">while&lt;/span> &lt;span class="nb">read&lt;/span> line&lt;span class="p">;&lt;/span>&lt;span class="k">do&lt;/span> qemu-img info &lt;span class="nv">$line&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="k">done&lt;/span> &lt;span class="p">|&lt;/span> grep &lt;span class="s2">&amp;#34;backing file:&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201212001502-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.qcow2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218050002-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201212001502-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218093744-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218050002-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218094746-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218093744-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218095908-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218094746-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218101540-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218095908-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218103530-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218101540-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218103837-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218103530-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218104836-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.latest
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218105121-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218104836-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218105635-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218105121-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218110021-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218105635-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201219050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218110021-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201220050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201219050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201221050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201220050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201222050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201221050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201223050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201222050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201224050002-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201223050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201225050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201224050002-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201226050002-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201225050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.latest
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201225050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.qcow2
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>backing fileを正しいスナップショットに修正&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">qemu-img rebase -u -f qcow2 -F qcow2 -b /var/lib/libvirt/images/dns.20201218103837-snap /var/lib/libvirt/images/dns.20201218104836-snap
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>backing fileが正しくなったのを確認&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-text" data-lang="text">&lt;span class="line">&lt;span class="cl">root@mks-m75q-1:~# qemu-img info /var/lib/libvirt/images/dns.20201218104836-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218104836-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">file format: qcow2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">virtual size: 25 GiB (26843545600 bytes)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">disk size: 3.95 MiB
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cluster_size: 65536
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218103837-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file format: qcow2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Format specific information:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> compat: 1.1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> lazy refcounts: false
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> refcount bits: 16
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> corrupt: false
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>参考情報
+&lt;a class="link" href="https://blog.programster.org/qemu-img-cheatsheet" target="_blank" rel="noopener"
+>https://blog.programster.org/qemu-img-cheatsheet&lt;/a>&lt;/p></description></item><item><title>LVM raid1の復旧</title><link>https://mkashi.com/p/lvm-raid1%E3%81%AE%E5%BE%A9%E6%97%A7/</link><pubDate>Sun, 08 Nov 2020 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/lvm-raid1%E3%81%AE%E5%BE%A9%E6%97%A7/</guid><description>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">vgreduce vgubuntu --removemissing --force
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pvcreate /dev/nvme0n1p2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">vgextend vgubuntu /dev/nvme0n1p2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">lvconvert --repair /dev/vgubuntu/root
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">lvconvert --repair /dev/vgubuntu/swap_1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">lvs -a -o name,copy_percent,devices vgubuntu
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>Ubuntu 20.04でaqc111のビルド</title><link>https://mkashi.com/p/ubuntu-20.04%E3%81%A7aqc111%E3%81%AE%E3%83%93%E3%83%AB%E3%83%89/</link><pubDate>Sun, 01 Nov 2020 10:18:25 +0900</pubDate><guid>https://mkashi.com/p/ubuntu-20.04%E3%81%A7aqc111%E3%81%AE%E3%83%93%E3%83%AB%E3%83%89/</guid><description>&lt;p>QNAP QNA-UC5G1Tのドライバをdkmsを使って自動ビルドする。
+&lt;a class="link" href="https://www.marvell.com/support/downloads.html" target="_blank" rel="noopener"
+>Aquantia&lt;/a>からaqc111の1.3.3.0を持ってきて、展開する。
+Makefileを書き換えないとビルドに失敗するので以下のように書き換える&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-diff" data-lang="diff">&lt;span class="line">&lt;span class="cl">&lt;span class="gd">--- aqc111-1.3.3.0/Makefile 2019-07-02 18:36:06.000000000 +0900
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">&lt;/span>&lt;span class="gi">+++ aqc111-1.3.3.1/Makefile 2020-10-05 23:57:00.873643349 +0900
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">&lt;/span>&lt;span class="gu">@@ -23,7 +23,7 @@
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gu">&lt;/span> obj-m := $(TARGET).o
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> default:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- make -C $(BUILD_DIR) SUBDIRS=$(PWD) modules
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">&lt;/span>&lt;span class="gi">+ make -C $(BUILD_DIR) M=$(shell pwd) modules
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> $(TARGET).o: $(OBJS)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> $(LD) $(LD_RFLAG) -r -o $@ $(OBJS)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gu">@@ -32,7 +32,7 @@
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gu">&lt;/span> cp -v $(TARGET).ko $(DEST) &amp;amp;&amp;amp; /sbin/depmod -a
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> clean:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- $(MAKE) -C $(BUILD_DIR) SUBDIRS=$(PWD) clean
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">&lt;/span>&lt;span class="gi">+ $(MAKE) -C $(BUILD_DIR) M=$(shell pwd) clean
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> .PHONY: modules clean
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;a class="link" href="https://mkashi.com/p/aqc111%e3%81%a7bond%e3%82%92%e4%bd%bf%e3%81%88%e3%82%8b%e3%82%88%e3%81%86%e3%81%ab%e3%81%99%e3%82%8b/" >このパッチを当てる&lt;/a>&lt;/p>
+&lt;p>ソースコードと同じディレクトリに下記のdkms.confを作る&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">PACKAGE_NAME=&amp;#34;aqc111&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PACKAGE_VERSION=&amp;#34;1.3.3.1&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">BUILT_MODULE_NAME[0]=&amp;#34;aqc111&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">DEST_MODULE_LOCATION[0]=&amp;#34;/kernel/drivers/net/usb&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">AUTOINSTALL=&amp;#34;yes&amp;#34;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>ソースコードのディレクトリを/usr/src/aqc111-1.3.3.1に移動&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">apt -y install dkms
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dkms add -m aqc111 -v 1.3.3.1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dkms build -m aqc111 -v 1.3.3.1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dkms install -m aqc111 -v 1.3.3.1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dkms status
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>aqc111でbondを使えるようにする</title><link>https://mkashi.com/p/aqc111%E3%81%A7bond%E3%82%92%E4%BD%BF%E3%81%88%E3%82%8B%E3%82%88%E3%81%86%E3%81%AB%E3%81%99%E3%82%8B/</link><pubDate>Sun, 01 Nov 2020 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/aqc111%E3%81%A7bond%E3%82%92%E4%BD%BF%E3%81%88%E3%82%8B%E3%82%88%E3%81%86%E3%81%AB%E3%81%99%E3%82%8B/</guid><description>&lt;p>Aquantiaで公開されている1.3.3.0とUbuntu 20.04のkernel 5.4.0に含まれてるaqc111ドライバではbondがうまく動かないので以下のパッチを当てる必要がある。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;span class="lnt">50
+&lt;/span>&lt;span class="lnt">51
+&lt;/span>&lt;span class="lnt">52
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-diff" data-lang="diff">&lt;span class="line">&lt;span class="cl">&lt;span class="gd">--- aqc111-1.3.3.0/aqc111.c 2019-07-02 18:36:06.000000000 +0900
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">&lt;/span>&lt;span class="gi">+++ aqc111-1.3.3.1/aqc111.c 2020-10-07 21:50:30.412367747 +0900
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">&lt;/span>&lt;span class="gu">@@ -21,7 +21,7 @@
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gu">&lt;/span> #include &amp;#34;aq_compat.h&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> #include &amp;#34;aqc111.h&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">-#define DRIVER_VERSION &amp;#34;1.3.3.0&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">&lt;/span>&lt;span class="gi">+#define DRIVER_VERSION &amp;#34;1.3.3.1&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">&lt;/span> #define DRIVER_NAME &amp;#34;aqc111&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> static int aqc111_read_cmd_nopm(struct usbnet *dev, u8 cmd, u16 value,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gu">@@ -724,17 +724,23 @@
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gu">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> static int aqc111_set_mac_addr(struct net_device *net, void *p)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">-{
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- struct usbnet *dev = netdev_priv(net);
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- int ret = 0;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- ret = eth_mac_addr(net, p);
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- if (ret &amp;lt; 0)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- return ret;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">&lt;/span>&lt;span class="gi">+{
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ struct usbnet *dev = netdev_priv(net);
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ int ret = 0;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- /* Set the MAC address */
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- return aqc111_write_cmd(dev, AQ_ACCESS_MAC, SFR_NODE_ID, ETH_ALEN,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- ETH_ALEN, net-&amp;gt;dev_addr);
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">&lt;/span>&lt;span class="gi">+ ret = eth_mac_addr(net, p);
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ if (ret &amp;lt; 0)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ return ret;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ /* Set the MAC address */
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ ret = aqc111_write_cmd(dev, AQ_ACCESS_MAC, SFR_NODE_ID, ETH_ALEN,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ ETH_ALEN, net-&amp;gt;dev_addr);
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ if (ret &amp;lt; 0)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ return ret;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ return (ret == ETH_ALEN) ? 0 : -1;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> static int aqc111_vlan_rx_kill_vid(struct net_device *net,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gu">@@ -1013,6 +1019,7 @@
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gu">&lt;/span> dev-&amp;gt;net-&amp;gt;hw_features |= AQ_SUPPORT_HW_FEATURE;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> dev-&amp;gt;net-&amp;gt;features |= AQ_SUPPORT_FEATURE;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> dev-&amp;gt;net-&amp;gt;vlan_features |= AQ_SUPPORT_VLAN_FEATURE;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ dev-&amp;gt;net-&amp;gt;priv_flags |= IFF_LIVE_ADDR_CHANGE;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> aqc111_read_fw_version(dev, aqc111_data);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> aqc111_data-&amp;gt;autoneg = AUTONEG_ENABLE;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>Ubuntu 20.04でpacemakerを使う</title><link>https://mkashi.com/p/ubuntu-20.04%E3%81%A7pacemaker%E3%82%92%E4%BD%BF%E3%81%86/</link><pubDate>Sat, 31 Oct 2020 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/ubuntu-20.04%E3%81%A7pacemaker%E3%82%92%E4%BD%BF%E3%81%86/</guid><description>&lt;p>インストール&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">apt install pcs
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>haclusterユーザのパスワード設定&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">passwd hacluster
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>インストール後はデフォルトでnode1というホストでクラスタが組まれておりこいつが邪魔をして設定ができないので消す&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">pcs cluster destroy
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>クラスタを組む&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">pcs host auth &amp;lt;host1&amp;gt; &amp;lt;host2&amp;gt; &amp;lt;host3&amp;gt; -u hacluster
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pcs cluster setup &amp;lt;cluster_name&amp;gt; &amp;lt;host1&amp;gt; &amp;lt;host2&amp;gt; &amp;lt;host3&amp;gt; --start --enable
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>STONITHを無効にする&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">pcs property set stonith-enabled=false
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>クラスタにVirtual IPを追加する&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">pcs resource create VirtualIP ocf:heartbeat:IPaddr2 ip=192.168.151.254 cidr_netmask=22 nic=br0 op monitor interval=10s
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>ステータス確認&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">root@mks-m75q-1:~# pcs status
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Cluster name: mks-m75q
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Cluster Summary:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * Stack: corosync
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * Current DC: mks-m75q-3 (version 2.0.3-4b1f869f0f) - partition with quorum
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * Last updated: Sat Oct 31 20:58:20 2020
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * Last change: Sat Oct 31 20:30:47 2020 by root via cibadmin on mks-m75q-1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * 3 nodes configured
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * 1 resource instance configured
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Node List:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * Online: [ mks-m75q-1 mks-m75q-2 mks-m75q-3 ]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Full List of Resources:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * VirtualIP (ocf::heartbeat:IPaddr2): Started mks-m75q-1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Daemon Status:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> corosync: active/enabled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> pacemaker: active/enabled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> pcsd: active/enabled
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>VMのHA&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">pcs resource create vm-name ocf:heartbeat:VirtualDomain config=/etc/libvirt/qemu/name.xml migration_transport=ssh meta allow-migrate=true
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;a class="link" href="https://access.redhat.com/documentation/ja-jp/red_hat_enterprise_linux/6/html/configuring_the_red_hat_high_availability_add-on_with_pacemaker/remotenode_config" target="_blank" rel="noopener"
+>https://access.redhat.com/documentation/ja-jp/red_hat_enterprise_linux/6/html/configuring_the_red_hat_high_availability_add-on_with_pacemaker/remotenode_config&lt;/a>&lt;/p></description></item><item><title>Postfixでso-netのメールサーバ経由で送信</title><link>https://mkashi.com/p/postfix%E3%81%A7so-net%E3%81%AE%E3%83%A1%E3%83%BC%E3%83%AB%E3%82%B5%E3%83%BC%E3%83%90%E7%B5%8C%E7%94%B1%E3%81%A7%E9%80%81%E4%BF%A1/</link><pubDate>Sun, 25 Oct 2020 10:19:25 +0900</pubDate><guid>https://mkashi.com/p/postfix%E3%81%A7so-net%E3%81%AE%E3%83%A1%E3%83%BC%E3%83%AB%E3%82%B5%E3%83%BC%E3%83%90%E7%B5%8C%E7%94%B1%E3%81%A7%E9%80%81%E4%BF%A1/</guid><description>&lt;h1 id="インストール">インストール
+&lt;/h1>&lt;p>CentOS7,8
+&lt;code>yum install -y postfix cyrus-sasl cyrus-sasl-plain mailx&lt;/code>&lt;/p>
+&lt;p>Debian
+&lt;code>apt install -y postfix libsasl2-2 libsasl2-modules bsd-mailx&lt;/code>&lt;/p>
+&lt;h1 id="設定">設定
+&lt;/h1>&lt;h2 id="etcpostfixmaincf-に以下を追記">/etc/postfix/main.cf に以下を追記
+&lt;/h2>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">relayhost = [mail.so-net.ne.jp]:587
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">smtp_sasl_auth_enable = yes
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">smtp_sasl_mechanism_filter = plain
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">smtp_sasl_password_maps = hash:/etc/postfix/so-net_passwd
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">smtp_sasl_security_options = noanonymous
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">smtp_sasl_tls_security_options = noanonymous
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="etcpostfixso-net_passwd-を作成し下記内容を記載">/etc/postfix/so-net_passwd を作成し、下記内容を記載
+&lt;/h2>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">[mail.so-net.ne.jp]:587 ユーザID:パスワード
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">postmap hash:/etc/postfix/so-net_passwd
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="postfix再起動">Postfix再起動
+&lt;/h2>&lt;p>必要に応じて/etc/alias編集&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">systemctl enable postfix;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">systemctl restart postfix;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">newaliases;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>Raspberry Pi でLVM raid1をルートパーティションにする</title><link>https://mkashi.com/p/raspberry-pi-%E3%81%A7lvm-raid1%E3%82%92%E3%83%AB%E3%83%BC%E3%83%88%E3%83%91%E3%83%BC%E3%83%86%E3%82%A3%E3%82%B7%E3%83%A7%E3%83%B3%E3%81%AB%E3%81%99%E3%82%8B/</link><pubDate>Sun, 25 Oct 2020 10:18:25 +0900</pubDate><guid>https://mkashi.com/p/raspberry-pi-%E3%81%A7lvm-raid1%E3%82%92%E3%83%AB%E3%83%BC%E3%83%88%E3%83%91%E3%83%BC%E3%83%86%E3%82%A3%E3%82%B7%E3%83%A7%E3%83%B3%E3%81%AB%E3%81%99%E3%82%8B/</guid><description>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-gdscript3" data-lang="gdscript3">&lt;span class="line">&lt;span class="cl">&lt;span class="n">echo&lt;/span> &lt;span class="n">raid1&lt;/span> &lt;span class="o">&amp;gt;&amp;gt;/&lt;/span>&lt;span class="n">etc&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">initramfs&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">tools&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">modules&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">update&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">initramfs&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="n">c&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="n">k&lt;/span> &lt;span class="o">$&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">uname&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="n">r&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">echo&lt;/span> &lt;span class="s2">&amp;#34;initramfs initrd.img-$(uname -r) followkernel&amp;#34;&lt;/span> &lt;span class="o">&amp;gt;&amp;gt;/&lt;/span>&lt;span class="n">boot&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">config&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">txt&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># vi /boot/cmdline.txt&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">root&lt;/span>&lt;span class="o">=/&lt;/span>&lt;span class="n">dev&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">mapper&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">system&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">rootfs&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>USB HDDでUASを無効化</title><link>https://mkashi.com/p/usb-hdd%E3%81%A7uas%E3%82%92%E7%84%A1%E5%8A%B9%E5%8C%96/</link><pubDate>Sun, 25 Oct 2020 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/usb-hdd%E3%81%A7uas%E3%82%92%E7%84%A1%E5%8A%B9%E5%8C%96/</guid><description>&lt;p>ラズパイ4でUSB HDDがうまく動かなかったときのワークアラウンド&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">echo &amp;#34;usb-storage.quirks=0x0080:0x0578:u&amp;#34; &amp;gt;&amp;gt;/boot/cmdline.txt
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>nmcliでbridgeとbondingとvlanを組み合わせる</title><link>https://mkashi.com/p/nmcli%E3%81%A7bridge%E3%81%A8bonding%E3%81%A8vlan%E3%82%92%E7%B5%84%E3%81%BF%E5%90%88%E3%82%8F%E3%81%9B%E3%82%8B/</link><pubDate>Sun, 25 Oct 2020 10:16:25 +0900</pubDate><guid>https://mkashi.com/p/nmcli%E3%81%A7bridge%E3%81%A8bonding%E3%81%A8vlan%E3%82%92%E7%B5%84%E3%81%BF%E5%90%88%E3%82%8F%E3%81%9B%E3%82%8B/</guid><description>&lt;p>nmtuiではできないっぽいのでnmcliでやる&lt;/p>
+&lt;h1 id="bridgeとbondingの組み合わせ">bridgeとbondingの組み合わせ
+&lt;/h1>&lt;p>まずbridgeを作る&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">nmcli c add type bridge ifname br0 con-name br0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0 bridge.stp no
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0 ipv4.method manual ipv4.address &amp;#34;192.168.1.100/24&amp;#34; ipv4.gateway &amp;#34;192.168.1.1&amp;#34; ipv4.dns &amp;#34;8.8.8.8 8.8.4.4&amp;#34; ipv4.dns-search lan
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down br0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up br0
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>bridgeにbondingを追加&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">nmcli c add type bond ifname bond0 con-name bond0 mode active-backup
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod bond0 connection.master br0 connection.slave-type bridge
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c add type bond-slave ifname enpxxx con-name bond-slave-enpxxx master bond0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c add type bond-slave ifname enpyyy con-name bond-slave-enpyyy master bond0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down bond-slave-enpxxx
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down bond-slave-enpyyy
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down bond0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up bond-slave-enpxxx
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up bond-slave-enpyyy
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up bond0
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="bridgeとbondingの組み合わせで更にvlanも指定する">bridgeとbondingの組み合わせで更にVLANも指定する
+&lt;/h1>&lt;p>まず上のbridgeとbonding組み合わせを作る&lt;/p>
+&lt;p>VLAN ID2の場合&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">nmcli c add type bridge ifname br0.2 con-name br0.2;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0.2 bridge.stp no;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0.2 ipv4.method disable;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0.2 ipv6.method disable;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down br0.2;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up br0.2;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c add type vlan ifname bond0.2 con-name bond0.2 dev bond0 id 2;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod bond0.2 connection.master br0.2 connection.slave-type bridge;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down bond0.2;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up bond0.2;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>VLAN ID3の場合&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">nmcli c add type bridge ifname br0.3 con-name br0.3;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0.3 bridge.stp no;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0.3 ipv4.method disable;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0.3 ipv6.method disable;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down br0.3;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up br0.3;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli con add type vlan ifname bond0.3 con-name bond0.3 dev bond0 id 3;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod bond0.3 connection.master br0.3 connection.slave-type bridge;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down bond0.3;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up bond0.3;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>Search</title><link>https://mkashi.com/search/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://mkashi.com/search/</guid><description/></item></channel></rss>

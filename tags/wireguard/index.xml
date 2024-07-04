@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Wireguard on mkashi.com</title><link>https://mkashi.com/tags/wireguard/</link><description>Recent content in Wireguard on mkashi.com</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Fri, 09 Feb 2024 10:09:53 +0900</lastBuildDate><atom:link href="https://mkashi.com/tags/wireguard/index.xml" rel="self" type="application/rss+xml"/><item><title>Wireguardセットアップメモ</title><link>https://mkashi.com/p/wireguard%E3%82%BB%E3%83%83%E3%83%88%E3%82%A2%E3%83%83%E3%83%97%E3%83%A1%E3%83%A2/</link><pubDate>Fri, 09 Feb 2024 10:09:53 +0900</pubDate><guid>https://mkashi.com/p/wireguard%E3%82%BB%E3%83%83%E3%83%88%E3%82%A2%E3%83%83%E3%83%97%E3%83%A1%E3%83%A2/</guid><description>&lt;h1 id="generate-config">Generate config
+&lt;/h1>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">mkdir server client
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">wg genkey | tee server/server.key | wg pubkey &amp;gt; server/server.pub
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">wg genkey | tee client/client.key | wg pubkey &amp;gt; client/client.pub
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cat &amp;lt;&amp;lt;EOF &amp;gt;server/wg0.conf
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[Interface]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ListenPort = &amp;lt;PORT&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PrivateKey = $(cat server/server.key)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Address = 169.254.255.1/28
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PostUp = iptables -t nat -A POSTROUTING -o ens5 -s 169.254.255.0/24 -j MASQUERADE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PostDown = iptables -t nat -D POSTROUTING -o ens5 -s 169.254.255.0/24 -j MASQUERADE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[Peer] #Mac
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PublicKey = $(cat client/client.pub)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">AllowedIPs = 169.254.255.2/32
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">EOF
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cat &amp;lt;&amp;lt;EOF &amp;gt;client/wg0.conf
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[Interface]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PrivateKey = $(cat client/client.key)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Address = 169.254.255.2/28
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[Peer]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PublicKey = $(cat server/server.pub)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">AllowedIPs = 169.254.255.0/28,&amp;lt;YOUR SUBNET&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Endpoint = &amp;lt;ENDPOIND&amp;gt;:&amp;lt;PORT&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PersistentKeepalive = 25
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">EOF
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="server-side">Server Side
+&lt;/h1>&lt;p>Copy server/wg0.conf to /etc/wireguard/&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">systemctl enable wg-quick@wg0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">systemctl start wg-quick@wg0
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="client-side">Client Side
+&lt;/h1>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-gdscript3" data-lang="gdscript3">&lt;span class="line">&lt;span class="cl">&lt;span class="n">brew&lt;/span> &lt;span class="n">install&lt;/span> &lt;span class="n">wireguard&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">go&lt;/span> &lt;span class="n">wireguard&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">tools&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Copy client/wg0.conf to /opt/homebrew/etc/wireguard/&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">sudo wg-quick up wg0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo wg show
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="aws-eni-settings">AWS ENI settings
+&lt;/h1>&lt;p>Disable source/destination check&lt;/p></description></item></channel></rss>

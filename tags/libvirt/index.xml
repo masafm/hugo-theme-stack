@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Libvirt on mkashi.com</title><link>https://mkashi.com/tags/libvirt/</link><description>Recent content in Libvirt on mkashi.com</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Sat, 26 Dec 2020 10:17:25 +0900</lastBuildDate><atom:link href="https://mkashi.com/tags/libvirt/index.xml" rel="self" type="application/rss+xml"/><item><title>libvirtでbacking store for image is self-referentialのエラーでVMの起動に失敗</title><link>https://mkashi.com/p/libvirt%E3%81%A7backing-store-for-image-is-self-referential%E3%81%AE%E3%82%A8%E3%83%A9%E3%83%BC%E3%81%A7vm%E3%81%AE%E8%B5%B7%E5%8B%95%E3%81%AB%E5%A4%B1%E6%95%97/</link><pubDate>Sat, 26 Dec 2020 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/libvirt%E3%81%A7backing-store-for-image-is-self-referential%E3%81%AE%E3%82%A8%E3%83%A9%E3%83%BC%E3%81%A7vm%E3%81%AE%E8%B5%B7%E5%8B%95%E3%81%AB%E5%A4%B1%E6%95%97/</guid><description>&lt;p>libvitで以下のような感じで起動に失敗する場合の対処法&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-text" data-lang="text">&lt;span class="line">&lt;span class="cl">error: Failed to start domain dns
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">error: internal error: backing store for /var/lib/libvirt/images/dns.latest (/var/lib/libvirt/images/dns.20201226050002-snap) is self-referential
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>対象VMのスナップショット一覧を確認&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">root@mks-m75q-1:~# ll /var/lib/libvirt/images/dns.*
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">2721972224&lt;/span> 12月 &lt;span class="m">18&lt;/span> 11:00 /var/lib/libvirt/images/dns.20201212001502-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">24838144&lt;/span> 12月 &lt;span class="m">18&lt;/span> 11:00 /var/lib/libvirt/images/dns.20201218050002-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">3407872&lt;/span> 12月 &lt;span class="m">18&lt;/span> 09:48 /var/lib/libvirt/images/dns.20201218093744-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">4521984&lt;/span> 12月 &lt;span class="m">18&lt;/span> 09:59 /var/lib/libvirt/images/dns.20201218094746-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">45416448&lt;/span> 12月 &lt;span class="m">18&lt;/span> 10:16 /var/lib/libvirt/images/dns.20201218095908-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">8781824&lt;/span> 12月 &lt;span class="m">18&lt;/span> 10:36 /var/lib/libvirt/images/dns.20201218101540-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">3670016&lt;/span> 12月 &lt;span class="m">18&lt;/span> 10:39 /var/lib/libvirt/images/dns.20201218103530-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">33816576&lt;/span> 12月 &lt;span class="m">18&lt;/span> 10:48 /var/lib/libvirt/images/dns.20201218103837-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">4194304&lt;/span> 12月 &lt;span class="m">18&lt;/span> 10:51 /var/lib/libvirt/images/dns.20201218104836-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">4259840&lt;/span> 12月 &lt;span class="m">18&lt;/span> 10:56 /var/lib/libvirt/images/dns.20201218105121-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">3735552&lt;/span> 12月 &lt;span class="m">18&lt;/span> 11:00 /var/lib/libvirt/images/dns.20201218105635-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">288358400&lt;/span> 12月 &lt;span class="m">19&lt;/span> 05:00 /var/lib/libvirt/images/dns.20201218110021-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">591462400&lt;/span> 12月 &lt;span class="m">20&lt;/span> 05:00 /var/lib/libvirt/images/dns.20201219050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">252968960&lt;/span> 12月 &lt;span class="m">21&lt;/span> 05:00 /var/lib/libvirt/images/dns.20201220050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">283901952&lt;/span> 12月 &lt;span class="m">22&lt;/span> 05:00 /var/lib/libvirt/images/dns.20201221050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">83034112&lt;/span> 12月 &lt;span class="m">23&lt;/span> 05:00 /var/lib/libvirt/images/dns.20201222050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">243269632&lt;/span> 12月 &lt;span class="m">24&lt;/span> 05:00 /var/lib/libvirt/images/dns.20201223050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">261750784&lt;/span> 12月 &lt;span class="m">25&lt;/span> 05:00 /var/lib/libvirt/images/dns.20201224050002-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">246022144&lt;/span> 12月 &lt;span class="m">26&lt;/span> 05:00 /var/lib/libvirt/images/dns.20201225050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw------- &lt;span class="m">1&lt;/span> root root &lt;span class="m">225443840&lt;/span> 12月 &lt;span class="m">26&lt;/span> 18:40 /var/lib/libvirt/images/dns.20201226050002-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">lrwxrwxrwx &lt;span class="m">1&lt;/span> root root &lt;span class="m">47&lt;/span> 12月 &lt;span class="m">26&lt;/span> 05:00 /var/lib/libvirt/images/dns.latest -&amp;gt; /var/lib/libvirt/images/dns.20201226050002-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-rw-rw-r-- &lt;span class="m">1&lt;/span> libvirt-qemu kvm &lt;span class="m">13776781312&lt;/span> 12月 &lt;span class="m">12&lt;/span> 10:07 /var/lib/libvirt/images/dns.qcow2
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>各スナップショットのbacking fileを確認
+何故か/var/lib/libvirt/images/dns.20201218104836-snapが/var/lib/libvirt/images/dns.latestを指してる&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">root@mks-m75q-1:~# ls /var/lib/libvirt/images/dns.* &lt;span class="p">|&lt;/span> &lt;span class="k">while&lt;/span> &lt;span class="nb">read&lt;/span> line&lt;span class="p">;&lt;/span>&lt;span class="k">do&lt;/span> qemu-img info &lt;span class="nv">$line&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="k">done&lt;/span> &lt;span class="p">|&lt;/span> grep &lt;span class="s2">&amp;#34;backing file:&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201212001502-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.qcow2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218050002-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201212001502-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218093744-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218050002-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218094746-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218093744-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218095908-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218094746-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218101540-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218095908-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218103530-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218101540-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218103837-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218103530-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218104836-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.latest
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218105121-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218104836-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218105635-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218105121-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218110021-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218105635-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201219050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218110021-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201220050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201219050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201221050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201220050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201222050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201221050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201223050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201222050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201224050002-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201223050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201225050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201224050002-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201226050002-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201225050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.latest
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201225050001-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.qcow2
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>backing fileを正しいスナップショットに修正&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">qemu-img rebase -u -f qcow2 -F qcow2 -b /var/lib/libvirt/images/dns.20201218103837-snap /var/lib/libvirt/images/dns.20201218104836-snap
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>backing fileが正しくなったのを確認&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-text" data-lang="text">&lt;span class="line">&lt;span class="cl">root@mks-m75q-1:~# qemu-img info /var/lib/libvirt/images/dns.20201218104836-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">image: /var/lib/libvirt/images/dns.20201218104836-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">file format: qcow2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">virtual size: 25 GiB (26843545600 bytes)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">disk size: 3.95 MiB
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cluster_size: 65536
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file: /var/lib/libvirt/images/dns.20201218103837-snap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">backing file format: qcow2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Format specific information:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> compat: 1.1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> lazy refcounts: false
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> refcount bits: 16
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> corrupt: false
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>参考情報
+&lt;a class="link" href="https://blog.programster.org/qemu-img-cheatsheet" target="_blank" rel="noopener"
+>https://blog.programster.org/qemu-img-cheatsheet&lt;/a>&lt;/p></description></item></channel></rss>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>So-Net on mkashi.com</title><link>https://mkashi.com/tags/so-net/</link><description>Recent content in So-Net on mkashi.com</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Sun, 25 Oct 2020 10:19:25 +0900</lastBuildDate><atom:link href="https://mkashi.com/tags/so-net/index.xml" rel="self" type="application/rss+xml"/><item><title>Postfixでso-netのメールサーバ経由で送信</title><link>https://mkashi.com/p/postfix%E3%81%A7so-net%E3%81%AE%E3%83%A1%E3%83%BC%E3%83%AB%E3%82%B5%E3%83%BC%E3%83%90%E7%B5%8C%E7%94%B1%E3%81%A7%E9%80%81%E4%BF%A1/</link><pubDate>Sun, 25 Oct 2020 10:19:25 +0900</pubDate><guid>https://mkashi.com/p/postfix%E3%81%A7so-net%E3%81%AE%E3%83%A1%E3%83%BC%E3%83%AB%E3%82%B5%E3%83%BC%E3%83%90%E7%B5%8C%E7%94%B1%E3%81%A7%E9%80%81%E4%BF%A1/</guid><description>&lt;h1 id="インストール">インストール
+&lt;/h1>&lt;p>CentOS7,8
+&lt;code>yum install -y postfix cyrus-sasl cyrus-sasl-plain mailx&lt;/code>&lt;/p>
+&lt;p>Debian
+&lt;code>apt install -y postfix libsasl2-2 libsasl2-modules bsd-mailx&lt;/code>&lt;/p>
+&lt;h1 id="設定">設定
+&lt;/h1>&lt;h2 id="etcpostfixmaincf-に以下を追記">/etc/postfix/main.cf に以下を追記
+&lt;/h2>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">relayhost = [mail.so-net.ne.jp]:587
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">smtp_sasl_auth_enable = yes
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">smtp_sasl_mechanism_filter = plain
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">smtp_sasl_password_maps = hash:/etc/postfix/so-net_passwd
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">smtp_sasl_security_options = noanonymous
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">smtp_sasl_tls_security_options = noanonymous
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="etcpostfixso-net_passwd-を作成し下記内容を記載">/etc/postfix/so-net_passwd を作成し、下記内容を記載
+&lt;/h2>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">[mail.so-net.ne.jp]:587 ユーザID:パスワード
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">postmap hash:/etc/postfix/so-net_passwd
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="postfix再起動">Postfix再起動
+&lt;/h2>&lt;p>必要に応じて/etc/alias編集&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">systemctl enable postfix;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">systemctl restart postfix;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">newaliases;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Nutanix on mkashi.com</title><link>https://mkashi.com/tags/nutanix/</link><description>Recent content in Nutanix on mkashi.com</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Sun, 28 Mar 2021 10:17:25 +0900</lastBuildDate><atom:link href="https://mkashi.com/tags/nutanix/index.xml" rel="self" type="application/rss+xml"/><item><title>Lenovo m75s gen2 smallにNutanix CE 2020.09.16を入れる</title><link>https://mkashi.com/p/lenovo-m75s-gen2-small%E3%81%ABnutanix-ce-2020.09.16%E3%82%92%E5%85%A5%E3%82%8C%E3%82%8B/</link><pubDate>Sun, 28 Mar 2021 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/lenovo-m75s-gen2-small%E3%81%ABnutanix-ce-2020.09.16%E3%82%92%E5%85%A5%E3%82%8C%E3%82%8B/</guid><description>&lt;p>インストール前に下記のスライドは必読
+&lt;a class="link" href="https://www.slideshare.net/smzksts/nutanix-community-edition-518" target="_blank" rel="noopener"
+>https://www.slideshare.net/smzksts/nutanix-community-edition-518&lt;/a>&lt;/p>
+&lt;p>ドライブ構成はUSBメモリ(AHV), NVMe(CVM), SATA SSD(CVM), SATA HDD(DATA)
+m75s gen2で躓いたポイントは以下&lt;/p>
+&lt;ul>
+&lt;li>USBからブート後、一度USBを抜き差ししないと&lt;code>StandardError: Failed command: [hdparm -z /dev/sdc] with reason [BLKRRPART failed: Device or resource busy]&lt;/code>というメッセージが出てインストーラが起動しない&lt;/li>
+&lt;li>上記スライド p19 「インストール準備 起動優先度の設定 • に入り、 起動デバイスの優先順位を変更し、 インストーラー メモリが 最上位となるように設定する • キーや キー等 機種によって異なる で 入れるブートデバイス手動選択画面から 起動すると、なぜかスクリーンサイズ不足に なってしまい、インストールを続行できない （報告多数）」に従ってもインストールが続行できなかった。しょうがないのでUSB NIC(QNA-UC5G1T)をつないでsshdを起動し./ce_installer &amp;amp;&amp;amp; screen -rでインストールを行った。&lt;/li>
+&lt;li>CVM用にNVMeを選択した場合は、NVMeのメーカーによってはインストール後、CVMのブートに失敗する。Transcend TS512GMTE110Sだと失敗、Samsung 970 EVOだと成功した。これはTS512GMTE110Sに採用されてるSMIのコントローラチップのバグのせいっぽい。https://bugzilla.kernel.org/show_bug.cgi?id=20205&lt;/li>
+&lt;/ul>
+&lt;p>起動失敗時はQemuのログを見ると下記のようなメッセージが出ていた。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">qemu-system-x86_64: -device vfio-pci,host=01:00.0,id=hostdev2,bus=pci.0,addr=0x8: vfio error: 0000:01:00.0: failed to add PCI capability 0x11[0x50]@0xb0: table &amp;amp; pba overlap, or they don&amp;#39;t fit in BARs, or don&amp;#39;t align
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

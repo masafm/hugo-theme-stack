@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Nmcli on mkashi.com</title><link>https://mkashi.com/tags/nmcli/</link><description>Recent content in Nmcli on mkashi.com</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Sun, 25 Oct 2020 10:16:25 +0900</lastBuildDate><atom:link href="https://mkashi.com/tags/nmcli/index.xml" rel="self" type="application/rss+xml"/><item><title>nmcliでbridgeとbondingとvlanを組み合わせる</title><link>https://mkashi.com/p/nmcli%E3%81%A7bridge%E3%81%A8bonding%E3%81%A8vlan%E3%82%92%E7%B5%84%E3%81%BF%E5%90%88%E3%82%8F%E3%81%9B%E3%82%8B/</link><pubDate>Sun, 25 Oct 2020 10:16:25 +0900</pubDate><guid>https://mkashi.com/p/nmcli%E3%81%A7bridge%E3%81%A8bonding%E3%81%A8vlan%E3%82%92%E7%B5%84%E3%81%BF%E5%90%88%E3%82%8F%E3%81%9B%E3%82%8B/</guid><description>&lt;p>nmtuiではできないっぽいのでnmcliでやる&lt;/p>
+&lt;h1 id="bridgeとbondingの組み合わせ">bridgeとbondingの組み合わせ
+&lt;/h1>&lt;p>まずbridgeを作る&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">nmcli c add type bridge ifname br0 con-name br0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0 bridge.stp no
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0 ipv4.method manual ipv4.address &amp;#34;192.168.1.100/24&amp;#34; ipv4.gateway &amp;#34;192.168.1.1&amp;#34; ipv4.dns &amp;#34;8.8.8.8 8.8.4.4&amp;#34; ipv4.dns-search lan
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down br0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up br0
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>bridgeにbondingを追加&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">nmcli c add type bond ifname bond0 con-name bond0 mode active-backup
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod bond0 connection.master br0 connection.slave-type bridge
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c add type bond-slave ifname enpxxx con-name bond-slave-enpxxx master bond0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c add type bond-slave ifname enpyyy con-name bond-slave-enpyyy master bond0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down bond-slave-enpxxx
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down bond-slave-enpyyy
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down bond0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up bond-slave-enpxxx
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up bond-slave-enpyyy
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up bond0
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="bridgeとbondingの組み合わせで更にvlanも指定する">bridgeとbondingの組み合わせで更にVLANも指定する
+&lt;/h1>&lt;p>まず上のbridgeとbonding組み合わせを作る&lt;/p>
+&lt;p>VLAN ID2の場合&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">nmcli c add type bridge ifname br0.2 con-name br0.2;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0.2 bridge.stp no;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0.2 ipv4.method disable;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0.2 ipv6.method disable;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down br0.2;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up br0.2;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c add type vlan ifname bond0.2 con-name bond0.2 dev bond0 id 2;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod bond0.2 connection.master br0.2 connection.slave-type bridge;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down bond0.2;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up bond0.2;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>VLAN ID3の場合&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">nmcli c add type bridge ifname br0.3 con-name br0.3;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0.3 bridge.stp no;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0.3 ipv4.method disable;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0.3 ipv6.method disable;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down br0.3;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up br0.3;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli con add type vlan ifname bond0.3 con-name bond0.3 dev bond0 id 3;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod bond0.3 connection.master br0.3 connection.slave-type bridge;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down bond0.3;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up bond0.3;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

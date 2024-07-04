@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Pacemaker on mkashi.com</title><link>https://mkashi.com/tags/pacemaker/</link><description>Recent content in Pacemaker on mkashi.com</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Sun, 30 May 2021 10:17:25 +0900</lastBuildDate><atom:link href="https://mkashi.com/tags/pacemaker/index.xml" rel="self" type="application/rss+xml"/><item><title>PacemakerでリソースのHAを監視する</title><link>https://mkashi.com/p/pacemaker%E3%81%A7%E3%83%AA%E3%82%BD%E3%83%BC%E3%82%B9%E3%81%AEha%E3%82%92%E7%9B%A3%E8%A6%96%E3%81%99%E3%82%8B/</link><pubDate>Sun, 30 May 2021 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/pacemaker%E3%81%A7%E3%83%AA%E3%82%BD%E3%83%BC%E3%82%B9%E3%81%AEha%E3%82%92%E7%9B%A3%E8%A6%96%E3%81%99%E3%82%8B/</guid><description>&lt;p>ノードごとにMailToリソースを作って各ノードに割り当てる。
+mailコマンドが必要なので入ってない場合は事前に入れる。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-gdscript3" data-lang="gdscript3">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># ノード1の監視&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pcs&lt;/span> &lt;span class="n">resource&lt;/span> &lt;span class="n">create&lt;/span> &lt;span class="n">MailTo1&lt;/span> &lt;span class="n">ocf&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">heartbeat&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">MailTo&lt;/span> &lt;span class="n">email&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&amp;lt;メールアドレス&amp;gt;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pcs&lt;/span> &lt;span class="n">constraint&lt;/span> &lt;span class="n">location&lt;/span> &lt;span class="n">MailTo1&lt;/span> &lt;span class="n">prefers&lt;/span> &lt;span class="o">&amp;lt;&lt;/span>&lt;span class="err">ノード&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="o">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># ノード2の監視&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pcs&lt;/span> &lt;span class="n">resource&lt;/span> &lt;span class="n">create&lt;/span> &lt;span class="n">MailTo2&lt;/span> &lt;span class="n">ocf&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">heartbeat&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">MailTo&lt;/span> &lt;span class="n">email&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&amp;lt;メールアドレス&amp;gt;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pcs&lt;/span> &lt;span class="n">constraint&lt;/span> &lt;span class="n">location&lt;/span> &lt;span class="n">MailTo2&lt;/span> &lt;span class="n">prefers&lt;/span> &lt;span class="o">&amp;lt;&lt;/span>&lt;span class="err">ノード&lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="o">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># ノード3の監視&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pcs&lt;/span> &lt;span class="n">resource&lt;/span> &lt;span class="n">create&lt;/span> &lt;span class="n">MailTo1&lt;/span> &lt;span class="n">ocf&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">heartbeat&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">MailTo&lt;/span> &lt;span class="n">email&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&amp;lt;メールアドレス&amp;gt;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pcs&lt;/span> &lt;span class="n">constraint&lt;/span> &lt;span class="n">location&lt;/span> &lt;span class="n">MailTo3&lt;/span> &lt;span class="n">prefers&lt;/span> &lt;span class="o">&amp;lt;&lt;/span>&lt;span class="err">ノード&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="o">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>Ubuntu 20.04でpacemakerを使う</title><link>https://mkashi.com/p/ubuntu-20.04%E3%81%A7pacemaker%E3%82%92%E4%BD%BF%E3%81%86/</link><pubDate>Sat, 31 Oct 2020 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/ubuntu-20.04%E3%81%A7pacemaker%E3%82%92%E4%BD%BF%E3%81%86/</guid><description>&lt;p>インストール&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">apt install pcs
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>haclusterユーザのパスワード設定&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">passwd hacluster
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>インストール後はデフォルトでnode1というホストでクラスタが組まれておりこいつが邪魔をして設定ができないので消す&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">pcs cluster destroy
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>クラスタを組む&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">pcs host auth &amp;lt;host1&amp;gt; &amp;lt;host2&amp;gt; &amp;lt;host3&amp;gt; -u hacluster
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pcs cluster setup &amp;lt;cluster_name&amp;gt; &amp;lt;host1&amp;gt; &amp;lt;host2&amp;gt; &amp;lt;host3&amp;gt; --start --enable
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>STONITHを無効にする&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">pcs property set stonith-enabled=false
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>クラスタにVirtual IPを追加する&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">pcs resource create VirtualIP ocf:heartbeat:IPaddr2 ip=192.168.151.254 cidr_netmask=22 nic=br0 op monitor interval=10s
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>ステータス確認&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">root@mks-m75q-1:~# pcs status
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Cluster name: mks-m75q
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Cluster Summary:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * Stack: corosync
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * Current DC: mks-m75q-3 (version 2.0.3-4b1f869f0f) - partition with quorum
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * Last updated: Sat Oct 31 20:58:20 2020
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * Last change: Sat Oct 31 20:30:47 2020 by root via cibadmin on mks-m75q-1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * 3 nodes configured
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * 1 resource instance configured
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Node List:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * Online: [ mks-m75q-1 mks-m75q-2 mks-m75q-3 ]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Full List of Resources:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * VirtualIP (ocf::heartbeat:IPaddr2): Started mks-m75q-1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Daemon Status:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> corosync: active/enabled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> pacemaker: active/enabled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> pcsd: active/enabled
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>VMのHA&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">pcs resource create vm-name ocf:heartbeat:VirtualDomain config=/etc/libvirt/qemu/name.xml migration_transport=ssh meta allow-migrate=true
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;a class="link" href="https://access.redhat.com/documentation/ja-jp/red_hat_enterprise_linux/6/html/configuring_the_red_hat_high_availability_add-on_with_pacemaker/remotenode_config" target="_blank" rel="noopener"
+>https://access.redhat.com/documentation/ja-jp/red_hat_enterprise_linux/6/html/configuring_the_red_hat_high_availability_add-on_with_pacemaker/remotenode_config&lt;/a>&lt;/p></description></item></channel></rss>

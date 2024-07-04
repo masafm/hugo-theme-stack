@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Bond on mkashi.com</title><link>https://mkashi.com/tags/bond/</link><description>Recent content in Bond on mkashi.com</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Sun, 01 Nov 2020 10:17:25 +0900</lastBuildDate><atom:link href="https://mkashi.com/tags/bond/index.xml" rel="self" type="application/rss+xml"/><item><title>aqc111でbondを使えるようにする</title><link>https://mkashi.com/p/aqc111%E3%81%A7bond%E3%82%92%E4%BD%BF%E3%81%88%E3%82%8B%E3%82%88%E3%81%86%E3%81%AB%E3%81%99%E3%82%8B/</link><pubDate>Sun, 01 Nov 2020 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/aqc111%E3%81%A7bond%E3%82%92%E4%BD%BF%E3%81%88%E3%82%8B%E3%82%88%E3%81%86%E3%81%AB%E3%81%99%E3%82%8B/</guid><description>&lt;p>Aquantiaで公開されている1.3.3.0とUbuntu 20.04のkernel 5.4.0に含まれてるaqc111ドライバではbondがうまく動かないので以下のパッチを当てる必要がある。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;span class="lnt">50
+&lt;/span>&lt;span class="lnt">51
+&lt;/span>&lt;span class="lnt">52
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-diff" data-lang="diff">&lt;span class="line">&lt;span class="cl">&lt;span class="gd">--- aqc111-1.3.3.0/aqc111.c 2019-07-02 18:36:06.000000000 +0900
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">&lt;/span>&lt;span class="gi">+++ aqc111-1.3.3.1/aqc111.c 2020-10-07 21:50:30.412367747 +0900
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">&lt;/span>&lt;span class="gu">@@ -21,7 +21,7 @@
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gu">&lt;/span> #include &amp;#34;aq_compat.h&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> #include &amp;#34;aqc111.h&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">-#define DRIVER_VERSION &amp;#34;1.3.3.0&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">&lt;/span>&lt;span class="gi">+#define DRIVER_VERSION &amp;#34;1.3.3.1&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">&lt;/span> #define DRIVER_NAME &amp;#34;aqc111&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> static int aqc111_read_cmd_nopm(struct usbnet *dev, u8 cmd, u16 value,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gu">@@ -724,17 +724,23 @@
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gu">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> static int aqc111_set_mac_addr(struct net_device *net, void *p)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">-{
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- struct usbnet *dev = netdev_priv(net);
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- int ret = 0;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- ret = eth_mac_addr(net, p);
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- if (ret &amp;lt; 0)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- return ret;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">&lt;/span>&lt;span class="gi">+{
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ struct usbnet *dev = netdev_priv(net);
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ int ret = 0;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- /* Set the MAC address */
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- return aqc111_write_cmd(dev, AQ_ACCESS_MAC, SFR_NODE_ID, ETH_ALEN,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- ETH_ALEN, net-&amp;gt;dev_addr);
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">&lt;/span>&lt;span class="gi">+ ret = eth_mac_addr(net, p);
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ if (ret &amp;lt; 0)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ return ret;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ /* Set the MAC address */
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ ret = aqc111_write_cmd(dev, AQ_ACCESS_MAC, SFR_NODE_ID, ETH_ALEN,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ ETH_ALEN, net-&amp;gt;dev_addr);
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ if (ret &amp;lt; 0)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ return ret;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ return (ret == ETH_ALEN) ? 0 : -1;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">&lt;/span> }
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> static int aqc111_vlan_rx_kill_vid(struct net_device *net,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gu">@@ -1013,6 +1019,7 @@
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gu">&lt;/span> dev-&amp;gt;net-&amp;gt;hw_features |= AQ_SUPPORT_HW_FEATURE;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> dev-&amp;gt;net-&amp;gt;features |= AQ_SUPPORT_FEATURE;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> dev-&amp;gt;net-&amp;gt;vlan_features |= AQ_SUPPORT_VLAN_FEATURE;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">+ dev-&amp;gt;net-&amp;gt;priv_flags |= IFF_LIVE_ADDR_CHANGE;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> aqc111_read_fw_version(dev, aqc111_data);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> aqc111_data-&amp;gt;autoneg = AUTONEG_ENABLE;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>nmcliでbridgeとbondingとvlanを組み合わせる</title><link>https://mkashi.com/p/nmcli%E3%81%A7bridge%E3%81%A8bonding%E3%81%A8vlan%E3%82%92%E7%B5%84%E3%81%BF%E5%90%88%E3%82%8F%E3%81%9B%E3%82%8B/</link><pubDate>Sun, 25 Oct 2020 10:16:25 +0900</pubDate><guid>https://mkashi.com/p/nmcli%E3%81%A7bridge%E3%81%A8bonding%E3%81%A8vlan%E3%82%92%E7%B5%84%E3%81%BF%E5%90%88%E3%82%8F%E3%81%9B%E3%82%8B/</guid><description>&lt;p>nmtuiではできないっぽいのでnmcliでやる&lt;/p>
+&lt;h1 id="bridgeとbondingの組み合わせ">bridgeとbondingの組み合わせ
+&lt;/h1>&lt;p>まずbridgeを作る&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">nmcli c add type bridge ifname br0 con-name br0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0 bridge.stp no
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0 ipv4.method manual ipv4.address &amp;#34;192.168.1.100/24&amp;#34; ipv4.gateway &amp;#34;192.168.1.1&amp;#34; ipv4.dns &amp;#34;8.8.8.8 8.8.4.4&amp;#34; ipv4.dns-search lan
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down br0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up br0
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>bridgeにbondingを追加&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">nmcli c add type bond ifname bond0 con-name bond0 mode active-backup
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod bond0 connection.master br0 connection.slave-type bridge
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c add type bond-slave ifname enpxxx con-name bond-slave-enpxxx master bond0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c add type bond-slave ifname enpyyy con-name bond-slave-enpyyy master bond0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down bond-slave-enpxxx
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down bond-slave-enpyyy
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down bond0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up bond-slave-enpxxx
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up bond-slave-enpyyy
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up bond0
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h1 id="bridgeとbondingの組み合わせで更にvlanも指定する">bridgeとbondingの組み合わせで更にVLANも指定する
+&lt;/h1>&lt;p>まず上のbridgeとbonding組み合わせを作る&lt;/p>
+&lt;p>VLAN ID2の場合&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">nmcli c add type bridge ifname br0.2 con-name br0.2;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0.2 bridge.stp no;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0.2 ipv4.method disable;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0.2 ipv6.method disable;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down br0.2;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up br0.2;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c add type vlan ifname bond0.2 con-name bond0.2 dev bond0 id 2;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod bond0.2 connection.master br0.2 connection.slave-type bridge;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down bond0.2;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up bond0.2;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>VLAN ID3の場合&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">nmcli c add type bridge ifname br0.3 con-name br0.3;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0.3 bridge.stp no;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0.3 ipv4.method disable;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod br0.3 ipv6.method disable;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down br0.3;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up br0.3;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli con add type vlan ifname bond0.3 con-name bond0.3 dev bond0 id 3;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c mod bond0.3 connection.master br0.3 connection.slave-type bridge;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c down bond0.3;\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nmcli c up bond0.3;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

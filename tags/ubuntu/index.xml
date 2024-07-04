@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ubuntu on mkashi.com</title><link>https://mkashi.com/tags/ubuntu/</link><description>Recent content in Ubuntu on mkashi.com</description><generator>Hugo -- gohugo.io</generator><language>ja</language><lastBuildDate>Fri, 05 Jan 2024 10:17:25 +0900</lastBuildDate><atom:link href="https://mkashi.com/tags/ubuntu/index.xml" rel="self" type="application/rss+xml"/><item><title>Ubuntu Server 22.04.3 LTS でxfce4と日本語環境の構築</title><link>https://mkashi.com/p/ubuntu-server-22.04.3-lts-%E3%81%A7xfce4%E3%81%A8%E6%97%A5%E6%9C%AC%E8%AA%9E%E7%92%B0%E5%A2%83%E3%81%AE%E6%A7%8B%E7%AF%89/</link><pubDate>Fri, 05 Jan 2024 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/ubuntu-server-22.04.3-lts-%E3%81%A7xfce4%E3%81%A8%E6%97%A5%E6%9C%AC%E8%AA%9E%E7%92%B0%E5%A2%83%E3%81%AE%E6%A7%8B%E7%AF%89/</guid><description>&lt;p>xfce4､Ubuntu Desktop､日本語パックのインストール&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">apt install xfce4 xfce4-goodies ubuntu-desktop fonts-noto-cjk language-pack-ja
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>ロケールを日本語に変更､またGUIの言語サポートからGUI用の日本語パックも入れる&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">localectl set-locale LANG=ja_JP.UTF-8
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>xface4だとIBusに関する追加設定が必要(&lt;a class="link" href="https://wiki.archlinux.jp/index.php/IBus" target="_blank" rel="noopener"
+>参考&lt;/a>)
+/etc/environment&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">GTK_IM_MODULE=ibus
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">QT_IM_MODULE=ibus
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">XMODIFIERS=@im=ibus
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>下記コマンドを自動起動するように設定&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">ibus-daemon -drxR
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>Ubuntu 20.04でaqc111のビルド</title><link>https://mkashi.com/p/ubuntu-20.04%E3%81%A7aqc111%E3%81%AE%E3%83%93%E3%83%AB%E3%83%89/</link><pubDate>Sun, 01 Nov 2020 10:18:25 +0900</pubDate><guid>https://mkashi.com/p/ubuntu-20.04%E3%81%A7aqc111%E3%81%AE%E3%83%93%E3%83%AB%E3%83%89/</guid><description>&lt;p>QNAP QNA-UC5G1Tのドライバをdkmsを使って自動ビルドする。
+&lt;a class="link" href="https://www.marvell.com/support/downloads.html" target="_blank" rel="noopener"
+>Aquantia&lt;/a>からaqc111の1.3.3.0を持ってきて、展開する。
+Makefileを書き換えないとビルドに失敗するので以下のように書き換える&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-diff" data-lang="diff">&lt;span class="line">&lt;span class="cl">&lt;span class="gd">--- aqc111-1.3.3.0/Makefile 2019-07-02 18:36:06.000000000 +0900
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">&lt;/span>&lt;span class="gi">+++ aqc111-1.3.3.1/Makefile 2020-10-05 23:57:00.873643349 +0900
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">&lt;/span>&lt;span class="gu">@@ -23,7 +23,7 @@
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gu">&lt;/span> obj-m := $(TARGET).o
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> default:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- make -C $(BUILD_DIR) SUBDIRS=$(PWD) modules
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">&lt;/span>&lt;span class="gi">+ make -C $(BUILD_DIR) M=$(shell pwd) modules
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> $(TARGET).o: $(OBJS)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> $(LD) $(LD_RFLAG) -r -o $@ $(OBJS)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gu">@@ -32,7 +32,7 @@
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gu">&lt;/span> cp -v $(TARGET).ko $(DEST) &amp;amp;&amp;amp; /sbin/depmod -a
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> clean:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">- $(MAKE) -C $(BUILD_DIR) SUBDIRS=$(PWD) clean
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gd">&lt;/span>&lt;span class="gi">+ $(MAKE) -C $(BUILD_DIR) M=$(shell pwd) clean
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="gi">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> .PHONY: modules clean
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;a class="link" href="https://mkashi.com/p/aqc111%e3%81%a7bond%e3%82%92%e4%bd%bf%e3%81%88%e3%82%8b%e3%82%88%e3%81%86%e3%81%ab%e3%81%99%e3%82%8b/" >このパッチを当てる&lt;/a>&lt;/p>
+&lt;p>ソースコードと同じディレクトリに下記のdkms.confを作る&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">PACKAGE_NAME=&amp;#34;aqc111&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PACKAGE_VERSION=&amp;#34;1.3.3.1&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">BUILT_MODULE_NAME[0]=&amp;#34;aqc111&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">DEST_MODULE_LOCATION[0]=&amp;#34;/kernel/drivers/net/usb&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">AUTOINSTALL=&amp;#34;yes&amp;#34;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>ソースコードのディレクトリを/usr/src/aqc111-1.3.3.1に移動&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">apt -y install dkms
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dkms add -m aqc111 -v 1.3.3.1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dkms build -m aqc111 -v 1.3.3.1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dkms install -m aqc111 -v 1.3.3.1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dkms status
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>Ubuntu 20.04でpacemakerを使う</title><link>https://mkashi.com/p/ubuntu-20.04%E3%81%A7pacemaker%E3%82%92%E4%BD%BF%E3%81%86/</link><pubDate>Sat, 31 Oct 2020 10:17:25 +0900</pubDate><guid>https://mkashi.com/p/ubuntu-20.04%E3%81%A7pacemaker%E3%82%92%E4%BD%BF%E3%81%86/</guid><description>&lt;p>インストール&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">apt install pcs
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>haclusterユーザのパスワード設定&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">passwd hacluster
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>インストール後はデフォルトでnode1というホストでクラスタが組まれておりこいつが邪魔をして設定ができないので消す&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">pcs cluster destroy
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>クラスタを組む&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">pcs host auth &amp;lt;host1&amp;gt; &amp;lt;host2&amp;gt; &amp;lt;host3&amp;gt; -u hacluster
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pcs cluster setup &amp;lt;cluster_name&amp;gt; &amp;lt;host1&amp;gt; &amp;lt;host2&amp;gt; &amp;lt;host3&amp;gt; --start --enable
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>STONITHを無効にする&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">pcs property set stonith-enabled=false
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>クラスタにVirtual IPを追加する&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">pcs resource create VirtualIP ocf:heartbeat:IPaddr2 ip=192.168.151.254 cidr_netmask=22 nic=br0 op monitor interval=10s
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>ステータス確認&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">root@mks-m75q-1:~# pcs status
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Cluster name: mks-m75q
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Cluster Summary:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * Stack: corosync
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * Current DC: mks-m75q-3 (version 2.0.3-4b1f869f0f) - partition with quorum
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * Last updated: Sat Oct 31 20:58:20 2020
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * Last change: Sat Oct 31 20:30:47 2020 by root via cibadmin on mks-m75q-1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * 3 nodes configured
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * 1 resource instance configured
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Node List:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * Online: [ mks-m75q-1 mks-m75q-2 mks-m75q-3 ]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Full List of Resources:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> * VirtualIP (ocf::heartbeat:IPaddr2): Started mks-m75q-1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Daemon Status:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> corosync: active/enabled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> pacemaker: active/enabled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> pcsd: active/enabled
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>VMのHA&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">pcs resource create vm-name ocf:heartbeat:VirtualDomain config=/etc/libvirt/qemu/name.xml migration_transport=ssh meta allow-migrate=true
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;a class="link" href="https://access.redhat.com/documentation/ja-jp/red_hat_enterprise_linux/6/html/configuring_the_red_hat_high_availability_add-on_with_pacemaker/remotenode_config" target="_blank" rel="noopener"
+>https://access.redhat.com/documentation/ja-jp/red_hat_enterprise_linux/6/html/configuring_the_red_hat_high_availability_add-on_with_pacemaker/remotenode_config&lt;/a>&lt;/p></description></item></channel></rss>
